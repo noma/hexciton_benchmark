@@ -14,7 +14,7 @@ wget https://raw.githubusercontent.com/noma/ham/master/LICENSE_1_0.txt -P ham/
 git clone https://github.com/Computing-Language-Utility/CLU CLU.git
 
 # get Vc
-git clone git://code.compeng.uni-frankfurt.de/vc.git vc.git
+git clone https://github.com/VcDevel/Vc vc.git
 
 # get VCL
 wget http://www.agner.org/optimize/vectorclass.zip
