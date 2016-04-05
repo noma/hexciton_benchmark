@@ -8,6 +8,9 @@
 // NOTE: real_vec_t maps to a C++ equivalent to OpenCLs vector types
 // NOTE: this manually vectorised kernel uses the same arithmetic with another
 //       indexing scheme and without the SIMD-loop
+#ifdef KART
+extern "C" {
+#endif
 void commutator_omp_manual_aosoa_constants_direct_perm4to5(real_vec_t const* restrict sigma_in,
                                                            real_vec_t* restrict sigma_out,
                                                            real_t const* restrict hamiltonian,
@@ -54,4 +57,8 @@ void commutator_omp_manual_aosoa_constants_direct_perm4to5(real_vec_t const* res
 		}
 	} // for global
 }
+
+#ifdef KART
+} // extern "C"
+#endif
 

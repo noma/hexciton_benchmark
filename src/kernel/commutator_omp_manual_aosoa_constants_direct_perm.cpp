@@ -5,6 +5,9 @@
 
 #include "common.hpp"
 
+#ifdef KART
+extern "C" {
+#endif
 void commutator_omp_manual_aosoa_constants_direct_perm(real_vec_t const* restrict sigma_in, 
                                                        real_vec_t* restrict sigma_out, 
                                                        real_t const* restrict hamiltonian, 
@@ -51,4 +54,8 @@ void commutator_omp_manual_aosoa_constants_direct_perm(real_vec_t const* restric
 		}
 	}
 }
+
+#ifdef KART
+} // extern "C"
+#endif
 

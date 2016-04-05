@@ -7,6 +7,9 @@
 
 // This kernel uses the AoSoA memory layout that allows for fully contiguous
 // vector loads and stores. The only difference here is the indexing scheme.
+#ifdef KART
+extern "C" {
+#endif
 void commutator_omp_aosoa(real_t const* restrict sigma_in, 
                           real_t* restrict sigma_out, 
                           real_t const* restrict hamiltonian, 
@@ -59,3 +62,9 @@ void commutator_omp_aosoa(real_t const* restrict sigma_in,
 		}
 	}
 }
+
+#ifdef KART
+} // extern "C"
+#endif
+
+
