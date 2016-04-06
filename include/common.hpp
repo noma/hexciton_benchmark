@@ -13,7 +13,7 @@
 
 // SIMD vector libraries
 #if defined(VEC_INTEL) || defined(VEC_VC) || defined(VEC_VCL)
-	#include <Vc/vector.h>
+//	#include <Vc/vector.h>
 	#include <vectorclass.h>
 	#ifdef __MIC__
 	#include <micvec.h>
@@ -25,9 +25,11 @@
 	// assumed SIMD width (4 for Xeon, 8 for Xeon Phi)
 	#ifndef VEC_LENGTH
 		#ifdef SINGLE_PRECISION
-			#define VEC_LENGTH VC_FLOAT_V_SIZE // use Vc
+//			#define VEC_LENGTH VC_FLOAT_V_SIZE // use Vc
+			#define VEC_LENGTH 8 // use Vc
 		#else
-			#define VEC_LENGTH VC_DOUBLE_V_SIZE // use Vc
+//			#define VEC_LENGTH VC_DOUBLE_V_SIZE // use Vc
+			#define VEC_LENGTH 4 // use Vc
 		#endif
 	#endif
 
