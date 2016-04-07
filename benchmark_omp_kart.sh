@@ -19,6 +19,8 @@ RUNS=10
 ITERATIONS_PER_RUN=100
 WARM_UP_ITERATIONS=5
 
+export KART_DEFAULT_CONFIG=`pwd`/intel_16.0.2.kart
+
 for device in "${DEVICES[@]}"
 do
 	for veclib in "${VECLIBS[@]}"
