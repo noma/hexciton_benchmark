@@ -28,8 +28,8 @@ INCLUDE_HOST="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH}"
 INCLUDE_MIC="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH_MIC}"
 
 LIB="-lrt"
-LIB_HOST="$LIB ${VC_PATH}/lib/libVc.a"
-LIB_MIC="$LIB ${VC_PATH}/lib/libVc_MIC.a"
+LIB_HOST="$LIB" # ${VC_PATH}/lib/libVc.a"
+LIB_MIC="$LIB" # ${VC_PATH}/lib/libVc_MIC.a"
 
 BUILD_DIR_HOST="bin"
 BUILD_DIR_MIC="bin.mic"

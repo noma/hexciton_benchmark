@@ -13,11 +13,10 @@ RESULT_PATH=./results/$1
 
 mkdir -p $RESULT_PATH
 
-#DEVICES=( "-c" "-a" )  # -c -a = cpu, acc(mic)
 DEVICES=( "-c" )  # -c -a = cpu, acc(mic)
 VECLIBS=( "VEC_INTEL") # "VEC_INTEL" "VEC_VC" "VEC_VCL"
-RUNS=20
-ITERATIONS_PER_RUN=55
+RUNS=10
+ITERATIONS_PER_RUN=100
 WARM_UP_ITERATIONS=5
 
 for device in "${DEVICES[@]}"

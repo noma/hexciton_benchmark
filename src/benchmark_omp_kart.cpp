@@ -81,15 +81,11 @@ int main(void)
 	                     decltype(&transform_matrix_aos_to_soa) transformation_hamiltonian)
 	{
 		// kart runtime compilation
-		std::ifstream src_file(file_name);
-		std::stringstream src_file_buffer;
-		//src_file_buffer << "extern \"C\" {\n" << src_file.rdbuf() << "}\n";
-		src_file_buffer << src_file.rdbuf();
-		kart::program kernel_prog(src_file_buffer.str());
+		auto kernel_prog = kart::program::create_from_file(file_name);
 		kart::toolset ts; // create a default toolset
 		// add compiler and linker options as needed
 		std::stringstream options;
-		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << "-DNUM_WARMUP=" << NUM_WARMUP << " -DVEC_INTEL";
+		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << " -DNUM_WARMUP=" << NUM_WARMUP << " -DVEC_INTEL";
 		ts.compiler_options += options.str(); // append to default initialised options
 		kernel_prog.build(ts); // build with custom toolset
 		auto kernel = kernel_prog.get_kernel<void*>(kernel_name); // kernel_caller knows the type
