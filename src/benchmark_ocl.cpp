@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstddef>
 #include <string>
+#include <sstream>
 
 #include "clu_runtime/clu.h"
 #include "ham/util/time.hpp" // ham::util::time
@@ -168,7 +169,18 @@ int main(void)
 	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options)
 	{
 		// build kernel
-		cl_program prog = cluBuildSourceFromFile(file_name.c_str(), compile_options.c_str(), &err);
+		time::rep build_time = 0.0;
+		cl_program prog;
+		{
+			time::timer t;
+			prog = cluBuildSourceFromFile(file_name.c_str(), compile_options.c_str(), &err);
+			build_time = t.elapsed();
+		}
+		
+		std::stringstream time_ss;
+		time_ss << std::scientific << build_time;
+		std::cout << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
+		
 		if (ocl_error_handler(err, "cluBuildSourceFromFile()", false))
 		{
 			std::cerr << "OpenCL build log for: " << file_name << std::endl
@@ -196,7 +208,8 @@ int main(void)
 		ocl_error_handler(err, "clSetKernelArg(4)");
 		err = clSetKernelArg(kernel, 5, sizeof(real_t), static_cast<const void*>(&hbar));
 		ocl_error_handler(err, "clSetKernelArg(5)");
-		err = clSetKernelArg(kernel, 6, sizeof(real_t), static_cast<const void*>(&dt));
+		auto dt_tmp = dt;
+		err = clSetKernelArg(kernel, 6, sizeof(real_t), static_cast<const void*>(&dt_tmp));
 		ocl_error_handler(err, "clSetKernelArg(6)");
 
 		return kernel;

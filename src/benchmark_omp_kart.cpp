@@ -7,6 +7,7 @@
 
 #include <cstring> // memcpy
 #include <cmath>
+#include <sstream>
 
 #include "ham/util/time.hpp" // ham::util::time
 
@@ -87,7 +88,18 @@ int main(void)
 		std::stringstream options;
 		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << " -DNUM_WARMUP=" << NUM_WARMUP << " -DVEC_INTEL";
 		ts.compiler_options += options.str(); // append to default initialised options
-		kernel_prog.build(ts); // build with custom toolset
+
+		time::rep build_time = 0.0;
+		{
+			time::timer t;
+			kernel_prog.build(ts); // build with custom toolset
+			build_time = t.elapsed();
+		}
+		
+		std::stringstream time_ss;
+		time_ss << std::scientific << build_time;
+		std::cout << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
+		
 		auto kernel = kernel_prog.get_kernel<void*>(kernel_name); // kernel_caller knows the type
 		
 		// benchmark kernel as usual

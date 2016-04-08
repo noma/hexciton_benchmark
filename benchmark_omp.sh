@@ -13,7 +13,7 @@ RESULT_PATH=./results/$1
 
 mkdir -p $RESULT_PATH
 
-DEVICES=( "-c" )  # -c -a = cpu, acc(mic)
+DEVICES=( "-a")  # -c -a = cpu, acc(mic)
 VECLIBS=( "VEC_INTEL" ) # "VEC_INTEL" "VEC_VC" "VEC_VCL"
 
 RUNS=10 # 50
