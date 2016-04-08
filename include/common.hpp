@@ -13,12 +13,12 @@
 
 // SIMD vector libraries
 #if defined(VEC_INTEL) || defined(VEC_VC) || defined(VEC_VCL)
-//	#include <Vc/vector.h>
-	#include <vectorclass.h>
-	#ifdef __MIC__
-	#include <micvec.h>
-	#else
-	#include <dvec.h>
+
+	#if defined(VEC_VC)
+		#include <Vc/vector.h>
+	#endif
+	#if defined(VEC_VCL)
+		#include <vectorclass.h>
 	#endif
 
 	// compile time constant with defaults
@@ -43,6 +43,12 @@
 
 	// use one library to define real_vec_t
 	#ifdef VEC_INTEL
+		#ifdef __MIC__
+		#include <micvec.h>
+		#else
+		#include <dvec.h>
+		#endif
+
 //		#warning "Using Intel vector classes"
 		#ifdef __MIC__
 		typedef F64vec8 double_v;
@@ -58,22 +64,22 @@
 	#elif defined(VEC_VCL)
 #undef USE_VCL_ORIGINAL
 #if !defined(USE_VCL_ORIGINAL)
-#ifdef __MIC__
-	#warning "Using VCL (Vector Class Library) with Vec8dMod"
-class Vec8dMod : public Vec8d {
-	public:
-		Vec8dMod(double d) : Vec8d(d) {}
-		friend Vec8d operator *(const Vec8dMod &a, const double &b) { return Vec8d(_mm512_mul_pd(a, _mm512_set1_pd(b))); } 
-};
-#define Vec8d Vec8dMod
-#else
-class Vec4dMod : public Vec4d {
-	public:
-		Vec4dMod(double d) : Vec4d(d) {}
-		friend Vec4d operator *(const Vec4dMod &a, const double &b) { return Vec4d(_mm256_mul_pd(a, _mm256_set1_pd(b))); } 
-};
-#define Vec4d Vec4dMod
-#endif
+	#ifdef __MIC__
+		#warning "Using VCL (Vector Class Library) with Vec8dMod"
+	class Vec8dMod : public Vec8d {
+		public:
+			Vec8dMod(double d) : Vec8d(d) {}
+			friend Vec8d operator *(const Vec8dMod &a, const double &b) { return Vec8d(_mm512_mul_pd(a, _mm512_set1_pd(b))); } 
+	};
+	#define Vec8d Vec8dMod
+	#else
+	class Vec4dMod : public Vec4d {
+		public:
+			Vec4dMod(double d) : Vec4d(d) {}
+			friend Vec4d operator *(const Vec4dMod &a, const double &b) { return Vec4d(_mm256_mul_pd(a, _mm256_set1_pd(b))); } 
+	};
+	#define Vec4d Vec4dMod
+	#endif
 #endif
 //		#warning "Using VCL (Vector Class Library)"
 		#ifdef __MIC__

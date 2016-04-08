@@ -17,7 +17,7 @@ VECLIB="VEC_INTEL"
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 
-OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5" #-Wall
+OPTIONS="-std=c++11 -g -O3 -restrict -qopenmp -qopt-report=5" #-Wall
 #OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5 -DUSE_INITZERO" #-Wall
 OPTIONS_MIC="$OPTIONS -mmic"
 #OPTIONS_MIC="$OPTIONS_MIC -opt-prefetch-distance=6,1"
@@ -37,6 +37,7 @@ BUILD_DIR_MIC="bin.mic"
 FILES=( \
 common.cpp \
 kernel/commutator_reference.cpp \
+kernel/commutator_omp_empty.cpp \
 kernel/commutator_omp_aosoa.cpp \
 kernel/commutator_omp_aosoa_constants.cpp \
 kernel/commutator_omp_aosoa_direct.cpp \

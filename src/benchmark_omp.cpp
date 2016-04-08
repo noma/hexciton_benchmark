@@ -94,6 +94,16 @@ int main(void)
 			 reinterpret_cast<real_t*>(sigma_out),   \
 			 reinterpret_cast<real_t*>(hamiltonian), \
 			 num, dim, 0.0, 0.0
+
+	// BENCHMARK
+	benchmark(
+		[&]() // lambda expression
+		{
+			commutator_omp_empty( SCALAR_ARGUMENTS );
+		},
+		"commutator_omp_aosoa",
+		&transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+	
 	// BENCHMARK
 	benchmark(
 		[&]() // lambda expression
@@ -102,7 +112,6 @@ int main(void)
 		},
 		"commutator_omp_aosoa",
 		&transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
-
 
 	// BENCHMARK
 	benchmark(

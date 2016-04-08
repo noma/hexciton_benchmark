@@ -12,13 +12,13 @@ VECCLASS_PATH=thirdparty/vcl
 VECCLASS_PATH_MIC=thirdparty/vcl_mic
 KART_PATH=thirdparty/kart
 
-VECLIB="VEC_INTEL"
+#VECLIB="VEC_INTEL"
 #VECLIB="VEC_VC"
-#VECLIB="VEC_VCL"
+VECLIB="VEC_VCL"
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 
-OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5" #-Wall
+OPTIONS="-std=c++11 -g -O3 -restrict -qopenmp -qopt-report=5" #-Wall
 #OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5 -DUSE_INITZERO" #-Wall
 OPTIONS_MIC="$OPTIONS -mmic -DVC_DOUBLE_V_SIZE=8"
 #OPTIONS_MIC="$OPTIONS_MIC -opt-prefetch-distance=6,1"
