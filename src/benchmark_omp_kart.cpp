@@ -86,7 +86,7 @@ int main(void)
 		kart::toolset ts; // create a default toolset
 		// add compiler and linker options as needed
 		std::stringstream options;
-		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << " -DNUM_WARMUP=" << NUM_WARMUP << " -DVEC_INTEL";
+		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << " -DNUM_WARMUP=" << NUM_WARMUP;
 		ts.compiler_options += options.str(); // append to default initialised options
 
 		time::rep build_time = 0.0;
@@ -139,6 +139,14 @@ int main(void)
 	                         reinterpret_cast<decltype(commutator_omp_manual_aosoa)*>(kernel)(VECTOR_ARGUMENTS); 
 	                     }; 
 
+
+	// BENCHMARK
+	benchmark("src/kernel/commutator_omp_empty.cpp",
+	          "commutator_omp_empty",
+	          scalar_caller,
+	          &transform_matrices_aos_to_aosoa,
+	          SCALE_HAMILT,
+	          &transform_matrix_aos_to_soa);
 		
 	// BENCHMARK
 	benchmark("src/kernel/commutator_omp_aosoa.cpp",

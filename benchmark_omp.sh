@@ -16,8 +16,8 @@ mkdir -p $RESULT_PATH
 DEVICES=( "-a")  # -c -a = cpu, acc(mic)
 VECLIBS=( "VEC_INTEL" ) # "VEC_INTEL" "VEC_VC" "VEC_VCL"
 
-RUNS=10 # 50
-ITERATIONS_PER_RUN=100 # 105 = 100 + warmup 
+RUNS=50 # 50
+ITERATIONS_PER_RUN=105 # 105 = 100 + warmup 
 WARM_UP_ITERATIONS=5 # 5
 
 for device in "${DEVICES[@]}"

@@ -284,6 +284,16 @@ int main(void)
 		read_and_compare_sigma();
 	}; // benchmark
 
+	// BENCHMARK: empty kernel
+	benchmark("src/kernel/commutator_ocl_empty.cl", "commutator_ocl_empty",
+	          compile_options_common, VEC_LENGTH,
+	          { 1, // NDRange dimension
+	            { num }, // global size
+	            { }, // local size
+	            { } // offset
+	          }, NO_TRANSFORM, NO_SCALE_HAMILT, NO_TRANSFORM);
+
+
 	// BENCHMARK: initial kernel
 	benchmark("src/kernel/commutator_ocl_initial.cl", "commutator_ocl_initial",
 	          compile_options_common, VEC_LENGTH,
