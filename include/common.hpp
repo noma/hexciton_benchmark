@@ -26,10 +26,18 @@
 	#ifndef VEC_LENGTH
 		#ifdef SINGLE_PRECISION
 //			#define VEC_LENGTH VC_FLOAT_V_SIZE // use Vc
-			#define VEC_LENGTH 8 // use Vc
+			#ifdef __MIC__
+				#define VEC_LENGTH 16
+			#else
+				#define VEC_LENGTH 8
+			#endif
 		#else
 //			#define VEC_LENGTH VC_DOUBLE_V_SIZE // use Vc
-			#define VEC_LENGTH 4 // use Vc
+			#ifdef __MIC__
+				#define VEC_LENGTH 8
+			#else
+				#define VEC_LENGTH 4
+			#endif
 		#endif
 	#endif
 
