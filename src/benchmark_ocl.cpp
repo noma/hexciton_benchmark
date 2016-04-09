@@ -144,6 +144,8 @@ int main(void)
 
 	cl_int err = 0;
 	clu_initialize_params init_params = {}; // NOTE: null initialise!
+	if (DEVICE_TYPE != CL_DEVICE_TYPE_GPU)
+		init_params.vendor_name = "Intel(R) Corporation";
 	init_params.default_queue_props = CL_QUEUE_PROFILING_ENABLE;
 	init_params.preferred_device_type = DEVICE_TYPE; // set device type
 	init_params.compile_options = compile_options_common.c_str(); // set default compile options
