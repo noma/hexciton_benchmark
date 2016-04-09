@@ -17,6 +17,8 @@ void commutator_reference(complex_t* sigma_in, complex_t* sigma_out, complex_t* 
                            const real_t hbar, const real_t dt
 // auto: 
 
+void commutator_omp_empty( SCALAR_PARAMETERS );
+
 void commutator_omp_aosoa( SCALAR_PARAMETERS );
 
 void commutator_omp_aosoa_constants( SCALAR_PARAMETERS );
