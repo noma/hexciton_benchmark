@@ -12,9 +12,9 @@ VECCLASS_PATH=thirdparty/vcl
 VECCLASS_PATH_MIC=thirdparty/vcl_mic
 KART_PATH=thirdparty/kart
 
-#VECLIB="VEC_INTEL"
+VECLIB="VEC_INTEL"
 #VECLIB="VEC_VC"
-VECLIB="VEC_VCL"
+#VECLIB="VEC_VCL"
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 
