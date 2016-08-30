@@ -1,0 +1,10 @@
+[compiler]
+exe=/dassw/gcc/gcc-5.3.0/bin/g++
+options-always=-c -std=c++11 -O3 -march=native -fopenmp -fabi-version=6 -shared -fPIC -Wall
+options-default=-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vc/include -Ithirdparty/vcl -Ithirdparty/intel -DKART -DVEC_VCL -Drestrict=__restrict
+source-file-extension=cpp
+
+[linker]
+exe=/dassw/gcc/gcc-5.3.0/bin/g++
+options-always=-shared -fPIC
+options-default=-fopenmp

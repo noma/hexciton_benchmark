@@ -1,0 +1,10 @@
+[compiler]
+exe=/home/csr/bzcnoack/Software/llvm/bin/clang++
+options-always=-c -std=c++11 -O3 -march=native -fopenmp -shared -fPIC -Wall
+options-default=-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vc/include -Ithirdparty/vcl -Ithirdparty/intel -DKART -Drestrict=__restrict
+source-file-extension=cpp
+
+[linker]
+exe=/home/csr/bzcnoack/Software/llvm/bin/clang++
+options-always=-shared -fPIC -v
+options-default=-fopenmp -lm
