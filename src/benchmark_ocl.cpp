@@ -131,7 +131,8 @@ int main(void)
 
 	// setup OpenCL using CLU
 #if (DEVICE_TYPE == CL_DEVICE_TYPE_CPU)
-	const std::string compile_options_impl = " -cl-mad-enable -auto-prefetch-level=" STR(INTEL_PREFETCH_LEVEL) " "; 
+//	const std::string compile_options_impl = " -cl-mad-enable -auto-prefetch-level=" STR(INTEL_PREFETCH_LEVEL) " "; 
+	const std::string compile_options_impl = " -cl-mad-enable " STR(OCL_BUILD_OPTIONS) " ";
 #elif (DEVICE_TYPE == CL_DEVICE_TYPE_ACCELERATOR)
 	const std::string compile_options_impl = " -cl-mad-enable -auto-prefetch-level=" STR(INTEL_PREFETCH_LEVEL) " "; // -cl-finite-math-only -cl-no-signed-zeros "; 
 #elif (DEVICE_TYPE == CL_DEVICE_TYPE_GPU)
@@ -157,7 +158,11 @@ int main(void)
 	ocl_error_handler(err, "clGetCommandQueueInfo()");
 	clu_device_info dev_info = cluGetDeviceInfo(dev_id, &err);
 	ocl_error_handler(err, "cluGetDeviceInfo()");
-	std::cerr << "Using device: " << dev_info.device_name << std::endl;
+	std::cerr << "OpenCL device name:    " << dev_info.device_name << std::endl;
+	std::cerr << "OpenCL device vendor:  " << dev_info.device_vendor << std::endl;
+	std::cerr << "OpenCL device profile: " << dev_info.device_profile << std::endl;
+	std::cerr << "OpenCL device version: " << dev_info.device_version << std::endl;
+	std::cerr << "OpenCL driver version: " << dev_info.driver_version << std::endl;
 
 	// allocate OpenCL device memory
 	cl_mem hamiltonian_ocl = clCreateBuffer(CLU_CONTEXT, CL_MEM_READ_ONLY, size_hamiltonian_byte, 0, &err);

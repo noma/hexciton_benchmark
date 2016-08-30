@@ -13,13 +13,13 @@ RESULT_PATH=./results/$1
 
 mkdir -p $RESULT_PATH
 
-DEVICES=( "-c" )  # -c -a = cpu, acc(mic)
-VECLIBS=( "VEC_INTEL") # "VEC_INTEL" "VEC_VC" "VEC_VCL"
-RUNS=50
+DEVICES=( "$2" )  # -c -k -a = cpu, knl, knc
+VECLIBS=( "VEC_INTEL" "VEC_VCL" ) # "VEC_INTEL" "VEC_VC" "VEC_VCL"
+KART_CONFIGS=( "intel_16.0.3.kart" "gcc_6.1.0.kart" "clang_3.8.1.kart" )
+
+RUNS=25
 ITERATIONS_PER_RUN=105
 WARM_UP_ITERATIONS=5
-
-export KART_DEFAULT_CONFIG=`pwd`/intel_16.0.2.kart
 
 for device in "${DEVICES[@]}"
 do
@@ -28,24 +28,32 @@ do
 		echo "Rebuilding..."
 		./make_omp_kart.sh -v $veclib -i $ITERATIONS_PER_RUN -w $WARM_UP_ITERATIONS $device
 
-		for i in `seq 1 ${RUNS}`
+		for config in "${KART_CONFIGS[@]}"
 		do
-			case $device in
-			-c)
-				NAME="cpu"
-				RUN="./run_host.sh"
-				EXE="bin/benchmark_omp_kart"
-				;;
-			-a)
-				NAME="mic"
-				RUN="./run_mic.sh"
-				EXE="bin.mic/benchmark_omp_kart"
-				;;
-			esac
-			FILE_NAME=${RESULT_PATH}/${NAME}_${veclib}_run_${i}
-			echo "Benchmarking: ${FILE_NAME}"
-			echo "$RUN $EXE > $FILE_NAME.data 2> $FILE_NAME.log"
-			$RUN $EXE > $FILE_NAME.data 2> $FILE_NAME.log
+			export KART_DEFAULT_CONFIG=`pwd`/${config}
+			echo "Set KART_DEFAULT_CONFIG to: ${KART_DEFAULT_CONFIG}"
+			for i in `seq 1 ${RUNS}`
+			do
+				case $device in
+				-c)
+					NAME="cpu"
+					;;
+				-k)
+					NAME="knl"
+					;;
+				-a)
+					NAME="knc"
+					;;
+				esac
+
+				RUN="./run_${NAME}.sh"
+				EXE="bin.${NAME}/benchmark_omp_kart"
+
+				FILE_NAME=${RESULT_PATH}/${NAME}_${veclib}_${config}_run_${i}
+				echo "Benchmarking: ${FILE_NAME}"
+				echo "$RUN $EXE > $FILE_NAME.data 2> $FILE_NAME.log"
+				$RUN $EXE > $FILE_NAME.data 2> $FILE_NAME.log
+			done
 		done
 	done
 done

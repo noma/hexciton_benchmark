@@ -87,6 +87,15 @@ int main(void)
 		// add compiler and linker options as needed
 		std::stringstream options;
 		options << " -DNUM_ITERATIONS=" << NUM_ITERATIONS << " -DNUM_WARMUP=" << NUM_WARMUP;
+		#if defined(VEC_INTEL)
+		options << " -DVEC_INTEL";
+		#elif defined(VEC_VC)
+		options << " -DVEC_VC";
+		#elif defined(VEC_VCL)
+		options << " -DVEC_VCL";
+		#else
+			out << "NO_VEC_LIB";
+		#endif
 		ts.compiler_options += options.str(); // append to default initialised options
 
 		time::rep build_time = 0.0;

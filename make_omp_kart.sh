@@ -9,7 +9,7 @@ CC=icpc
 HAM_PATH=thirdparty/ham
 VC_PATH=thirdparty/vc
 VECCLASS_PATH=thirdparty/vcl
-VECCLASS_PATH_MIC=thirdparty/vcl_mic
+VECCLASS_PATH_KNC=thirdparty/vcl_KNC
 KART_PATH=thirdparty/kart
 
 VECLIB="VEC_INTEL"
@@ -18,42 +18,31 @@ VECLIB="VEC_INTEL"
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 
-OPTIONS="-std=c++11 -g -O3 -restrict -qopenmp -qopt-report=5" #-Wall
+OPTIONS="-std=c++11 -O3 -restrict -qopenmp -qopt-report=5" #-Wall
 #OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5 -DUSE_INITZERO" #-Wall
-OPTIONS_MIC="$OPTIONS -mmic -DVC_DOUBLE_V_SIZE=8"
-#OPTIONS_MIC="$OPTIONS_MIC -opt-prefetch-distance=6,1"
-OPTIONS_HOST="$OPTIONS -xHost -DVC_DOUBLE_V_SIZE=4"
+OPTIONS_CPU="$OPTIONS -xHost -DVC_DOUBLE_V_SIZE=4"
+OPTIONS_KNL="$OPTIONS -xHost -DVC_DOUBLE_V_SIZE=8"
+OPTIONS_KNC="$OPTIONS -mmic -DVC_DOUBLE_V_SIZE=8"
+#OPTIONS_KNC="$OPTIONS_KNC -opt-prefetch-distance=6,1"
 
 INCLUDE="-Iinclude -I${HAM_PATH}/include -I${KART_PATH}/include"
-INCLUDE_HOST="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH} -I${BOOST_ROOT}/include"
-INCLUDE_MIC="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH_MIC}"
+INCLUDE_CPU="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH} -I${BOOST_ROOT}/include"
+INCLUDE_KNL="$INCLUDE_CPU"
+INCLUDE_KNC="$INCLUDE -I${VC_PATH}/include -I${VECCLASS_PATH_KNC}"
 
 LIB="-lrt"
-#LIB_HOST="$LIB ${VC_PATH}/lib/libVc.a"
-LIB_HOST="$LIB -L${BOOST_ROOT}/lib"
-LIB_MIC="$LIB ${VC_PATH}/lib/libVc_MIC.a"
+#LIB_CPU="$LIB ${VC_PATH}/lib/libVc.a"
+LIB_CPU="$LIB -L${BOOST_ROOT}/lib"
+LIB_KNL="$LIB_CPU"
+LIB_KNC="$LIB ${VC_PATH}/lib/libVc_KNC.a"
 
-BUILD_DIR_HOST="bin"
-BUILD_DIR_MIC="bin.mic"
+BUILD_DIR_CPU="bin.cpu"
+BUILD_DIR_KNL="bin.knl"
+BUILD_DIR_KNC="bin.knc"
 
 FILES=( \
 common.cpp \
 kernel/commutator_reference.cpp \
-#kernel/commutator_omp_aosoa.cpp \
-#kernel/commutator_omp_aosoa_constants.cpp \
-#kernel/commutator_omp_aosoa_direct.cpp \
-#kernel/commutator_omp_aosoa_constants_direct.cpp \
-#kernel/commutator_omp_aosoa_constants_direct_perm.cpp \
-#kernel/commutator_omp_aosoa_constants_direct_perm2to3.cpp \
-#kernel/commutator_omp_aosoa_constants_direct_perm2to5.cpp \
-#kernel/commutator_omp_manual_aosoa.cpp \
-#kernel/commutator_omp_manual_aosoa_constants.cpp \
-#kernel/commutator_omp_manual_aosoa_constants_perm.cpp \
-#kernel/commutator_omp_manual_aosoa_direct.cpp \
-#kernel/commutator_omp_manual_aosoa_constants_direct.cpp \
-#kernel/commutator_omp_manual_aosoa_constants_direct_perm.cpp \
-#kernel/commutator_omp_manual_aosoa_constants_direct_unrollhints.cpp \
-#kernel/commutator_omp_manual_aosoa_constants_direct_perm_unrollhints.cpp \
 )
 
 # compile
@@ -65,24 +54,26 @@ build()
 	local LIB=$4
 
 	mkdir -p $BUILD_DIR
-	
-		
+			
 	for file in "${FILES[@]}"
 	do
 		local tmp=${file##*/}
 		local NAME=${tmp%.*}
-		$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/${NAME}.o src/${file} 
-		OBJS=" $OBJS ${BUILD_DIR}/${NAME}.o"
+		$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/${NAME}.o src/${file} & # NOTE: parallel build
+		local OBJS=" $OBJS ${BUILD_DIR}/${NAME}.o"
 	done
 
-	echo $OBJS
+	# wait for all build jobs
+	local FAIL_COUNT=0
+	for job in `jobs -p`; do
+		# echo $job
+		wait $job || let "FAIL_COUNT+=1"
+	done
+	if (( FAIL_COUNT > 0 )); then
+		echo "Failed build targets: $FAIL_COUNT"
+	fi
 
-#	$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/common.o src/common.cpp 
-#	$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/commutator_reference.o src/kernel/commutator_reference.cpp
-#	$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/commutator_omp_auto_final.o src/kernel/commutator_omp_auto_final.cpp
-#	$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/commutator_omp_manual_aosoa_constants_direct.o src/kernel/commutator_omp_manual_aosoa_constants_direct.cpp
-#	$CC -c $OPTIONS $INCLUDE -o ${BUILD_DIR}/commutator_omp_manual_final.o src/kernel/commutator_omp_manual_final.cpp
-#	$CC $OPTIONS $INCLUDE -o ${BUILD_DIR}/benchmark_omp ${BUILD_DIR}/commutator_omp_manual_final.o ${BUILD_DIR}/commutator_omp_manual_aosoa_constants_direct.o  ${BUILD_DIR}/commutator_omp_auto_final.o ${BUILD_DIR}/commutator_reference.o ${BUILD_DIR}/common.o src/benchmark_omp.cpp $LIB
+	#echo $OBJS
 
 	$CC $OPTIONS $INCLUDE -o ${BUILD_DIR}/benchmark_omp_kart $OBJS src/benchmark_omp_kart.cpp $LIB ${KART_PATH}/build/libkart.a -lboost_system -lboost_filesystem -lboost_program_options
 }
@@ -91,16 +82,17 @@ usage ()
 { 
 	echo "Usage and defaults:";
 	echo -e "\t-c\t Build CPU variant.";
-	echo -e "\t-a\t Build MIC (Accelerator) variant."; 
+	echo -e "\t-k\t Build KNL variant.";
+	echo -e "\t-a\t Build KNC accelerator variant.";
 	echo -e "\t-i ${NUM_ITERATIONS}\t Number of iterations (including warmups).";
 	echo -e "\t-w ${NUM_WARMUP}\t Number of warmup iterations.";
-	echo -e "\t-v ${VECLIB}\t Vector library: VEC_INTEL | VEC_VC | VEC_VCL";        
+	echo -e "\t-v ${VECLIB}\t Vector library: VEC_INTEL | VEC_VC | VEC_VCL";
 }
 
 BUILT_SOMETHING=false
 
 # evaluate command line
-while getopts ":i:w:v:cah" opt; do
+while getopts ":i:w:v:ckah" opt; do
 	case $opt in
 	i) # iterations
 		echo "Setting NUM_ITERATIONS to $OPTARG" >&2
@@ -118,9 +110,13 @@ while getopts ":i:w:v:cah" opt; do
 		echo "Building for CPU" >&2
 		BUILT_CPU=true
 		;;
-	a) # Accelerator
-		echo "Building for Accelerator" >&2
-		BUILT_ACC=true
+	k) # KNL
+		echo "Building for KNL" >&2
+		BUILT_KNL=true
+		;;
+	a) # KNC
+		echo "Building for KNC accelerator" >&2
+		BUILT_KNC=true
 		;;
 	h) # usage
 		usage
@@ -141,21 +137,25 @@ done
 
 if [ "$BUILT_CPU" = "true" ]
 then
-	build "$BUILD_DIR_HOST" "$OPTIONS_HOST -DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -D${VECLIB}" "$INCLUDE_HOST" "$LIB_HOST"
+	build "$BUILD_DIR_CPU" "$OPTIONS_CPU -DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -D${VECLIB}" "$INCLUDE_CPU" "$LIB_CPU"
 	BUILT_SOMETHING=true
 fi
 
-if [ "$BUILT_ACC" = "true" ]
+if [ "$BUILT_KNL" = "true" ]
 then
-	build "$BUILD_DIR_MIC" "$OPTIONS_MIC -DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -D${VECLIB}" "$INCLUDE_MIC" "$LIB_MIC"
+	build "$BUILD_DIR_KNL" "$OPTIONS_KNL -DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -D${VECLIB}" "$INCLUDE_KNL" "$LIB_KNL"
+	BUILT_SOMETHING=true
+fi
+
+if [ "$BUILT_KNC" = "true" ]
+then
+	build "$BUILD_DIR_KNC" "$OPTIONS_KNC -DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -D${VECLIB}" "$INCLUDE_KNC" "$LIB_KNC"
 	BUILT_SOMETHING=true
 fi
 
 if [ "$BUILT_SOMETHING" = "false" ]
 then
-	echo "Please use at least one of -c -a";
+	echo "Please use at least one of -c -k -a";
 	usage
 fi
-
-# TODO: generate asm 
 

@@ -13,14 +13,14 @@ RESULT_PATH=./results/$1
 
 mkdir -p $RESULT_PATH
 
-# -c -a -g = cpu, acc, gpu
-DEVICES=( "-c" "-a" ) # for Xeon Phi equipped hosts
+
+DEVICES=( "$2" ) # -c -a -g = cpu, acc, gpu
 #DEVICES=( "-g" ) # for GPUs (usually on a different host)
-RUNS=50
-ITERATIONS_PER_RUN=105
+RUNS=5
+ITERATIONS_PER_RUN=25
 WARM_UP_ITERATIONS=5
-PREFETCH_LEVELS=( 0 1 2 3 ) # relevant only for Intel OpenCL
-#PREFETCH_LEVELS=( 0 ) # use this when running with non-Intel OpenCL
+#PREFETCH_LEVELS=( 0 1 2 3 ) # relevant only for Intel OpenCL
+PREFETCH_LEVELS=( 0 ) # use this when running with non-Intel OpenCL
 
 for device in "${DEVICES[@]}"
 do
@@ -35,17 +35,23 @@ do
 			-c)
 				NAME="cpu"
 				;;
+			-k)
+				NAME="knl"
+				;;
 			-a)
-				NAME="mic"
+				NAME="knc"
 				;;
 			-g)
 				NAME="gpu"
 				;;
 			esac
+			
+			EXE="bin.${NAME}/benchmark_ocl"
+			
 			FILE_NAME=${RESULT_PATH}/${NAME}_pf_${prefetch}_run_${i}
 			echo "Benchmarking: ${FILE_NAME}"
-			echo "bin/benchmark_ocl_${NAME} > $FILE_NAME.data 2> $FILE_NAME.log"
-			bin/benchmark_ocl_${NAME} > $FILE_NAME.data 2> $FILE_NAME.log
+			echo "bin.${NAME}/benchmark_ocl > $FILE_NAME.data 2> $FILE_NAME.log"
+			$EXE > $FILE_NAME.data 2> $FILE_NAME.log
 		done
 		if [ "$device" = "-g" ]; then break; fi # skip prefetch levels for GPUs
 	done

@@ -13,10 +13,10 @@ RESULT_PATH=./results/$1
 
 mkdir -p $RESULT_PATH
 
-DEVICES=( "-a")  # -c -a = cpu, acc(mic)
-VECLIBS=( "VEC_INTEL" ) # "VEC_INTEL" "VEC_VC" "VEC_VCL"
+DEVICES=( "$2" )  # -c -k -a = cpu, knl, knc
+VECLIBS=( "VEC_INTEL" "VEC_VCL" ) # "VEC_INTEL" "VEC_VC" "VEC_VCL"
 
-RUNS=50 # 50
+RUNS=25 # 50
 ITERATIONS_PER_RUN=105 # 105 = 100 + warmup 
 WARM_UP_ITERATIONS=5 # 5
 
@@ -32,15 +32,18 @@ do
 			case $device in
 			-c)
 				NAME="cpu"
-				RUN="./run_host.sh"
-				EXE="bin/benchmark_omp"
+				;;
+			-k)
+				NAME="knl"
 				;;
 			-a)
-				NAME="mic"
-				RUN="./run_mic.sh"
-				EXE="bin.mic/benchmark_omp"
+				NAME="knc"
 				;;
 			esac
+
+			RUN="./run_${NAME}.sh"
+			EXE="bin.${NAME}/benchmark_omp"
+			
 			FILE_NAME=${RESULT_PATH}/${NAME}_${veclib}_run_${i}
 			echo "Benchmarking: ${FILE_NAME}"
 			echo "$RUN $EXE > $FILE_NAME.data 2> $FILE_NAME.log"
