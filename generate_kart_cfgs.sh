@@ -10,7 +10,7 @@ COMPILERS="g++ clang++ icpc CC" # C++ compiler from: GCC, LLVM/clang, Intel, Cra
 # ADAPT OPTIONS IF NEEDED
 # NOTE: hardcoded to vcl vector library
 COMPILER_OPTIONS_ALWAYS_GCC="-c -std=c++11 -O3 -march=native -fopenmp -fabi-version=6 -shared -fPIC -Wall -Drestrict=__restrict"
-COMPILER_OPTIONS_DEFAULT_GCC=  "-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vc/include -Ithirdparty/vcl -DKART"
+COMPILER_OPTIONS_DEFAULT_GCC="-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vc/include -Ithirdparty/vcl -DKART"
 LINKER_OPTIONS_ALWAYS_GCC="-shared -fPIC"
 LINKER_OPTIONS_DEFAULT_GCC="-fopenmp"
 
@@ -24,7 +24,7 @@ COMPILER_OPTIONS_DEFAULT_INTEL="-Iinclude -Ithirdparty/ham/include -Ithirdparty/
 LINKER_OPTIONS_ALWAYS_INTEL="-shared -fPIC"
 LINKER_OPTIONS_DEFAULT_INTEL="-qopenmp"
 
-COMPILER_OPTIONS_ALWAYS_CRAY="-c -hstd=c++11 -O3 -hvector3 -hfp3 -hipa5 -hintrinsics -homp -hshared -hPIC -Wall -Drestrict=__restrict"
+COMPILER_OPTIONS_ALWAYS_CRAY="-c -hstd=c++11 -O3 -hvector3 -hfp3 -hipa5 -hintrinsics -homp -hshared -hPIC -Drestrict=__restrict"
 COMPILER_OPTIONS_DEFAULT_CRAY="-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vc/include -Ithirdparty/vcl -DKART"
 LINKER_OPTIONS_ALWAYS_CRAY="-hshared -hPIC"
 LINKER_OPTIONS_DEFAULT_CRAY="-hopenmp"
