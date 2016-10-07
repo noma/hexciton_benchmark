@@ -15,33 +15,66 @@ using namespace ham::util;
 
 void print_compile_config(std::ostream& out)
 {
-	out << "DIM: " << DIM << std::endl;
-	out << "NUM: " << NUM << std::endl;
-	out << "NUM_ITERATIONS: " << NUM_ITERATIONS << std::endl;
-	out << "NUM_WARMUP: " << NUM_WARMUP << std::endl;
-	out << "PRECISION: ";
-	#ifdef SINGLE_PRECISION
-		out << "SINGLE";
+	out << "DIM:                  " << DIM << std::endl;
+	out << "NUM:                  " << NUM << std::endl;
+	out << "NUM_ITERATIONS:       " << NUM_ITERATIONS << std::endl;
+	out << "NUM_WARMUP:           " << NUM_WARMUP << std::endl;
+
+	out << "SINGLE_PRECISION:     "
+	#ifdef __MIC__
+		<< "defined" 
 	#else
-		out << "DOUBLE";
+		<< "undefined"
 	#endif
-	out << std::endl;
-	out << "DEFAULT_ALIGNMENT: " << DEFAULT_ALIGNMENT << std::endl;
-	out << "VEC_LIB: ";
+		<< std::endl;
+
+	out << "DEFAULT_ALIGNMENT:    " << DEFAULT_ALIGNMENT << std::endl;
+
+	out << "__MIC__:              "
+	#ifdef __MIC__
+		<< "defined" 
+	#else
+		<< "undefined"
+	#endif
+		<< std::endl;
+	
+	out << "__AVX512F__:          "
+	#ifdef __AVX512F__
+		<< "defined" 
+	#else
+		<< "undefined"
+	#endif
+		<< std::endl;
+	
+	out << "VEC_LIB:              "
 	#if defined(VEC_INTEL)
-		out << "VEC_INTEL";
+		<< "VEC_INTEL"
 	#elif defined(VEC_VC)
-		out << "VEC_VC";
+		<< "VEC_VC"
 	#elif defined(VEC_VCL)
-		out << "VEC_VCL";
+		<< "VEC_VCL"
 	#else
-		out << "NO_VEC_LIB";
+		<< "NO_VEC_LIB"
 	#endif
-	out << std::endl;
-        #if defined(USE_INITZERO)
-             	out << "USE_INITZERO" << std::endl;
-        #endif
-	out << "VEC_LENGTH: " << VEC_LENGTH << std::endl;
+		<< std::endl;
+
+	out << "VEC_LENGTH:           " << VEC_LENGTH << std::endl;
+
+	out << "USE_VCL_ORIGINAL      "
+	#ifdef USE_VCL_ORIGINAL
+		<< "defined" 
+	#else
+		<< "undefined"
+	#endif
+		<< std::endl;
+		
+	out << "USE_INITZERO:         "
+	#if defined(USE_INITZERO)
+		<< "defined" 
+	#else
+		<< "undefined"
+	#endif
+		<< std::endl;
 }
 
 void initialise_sigma(complex_t* sigma_in, complex_t* sigma_out, size_t dim, size_t num)

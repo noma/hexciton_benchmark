@@ -14,26 +14,21 @@
 // SIMD vector libraries
 #if defined(VEC_INTEL) || defined(VEC_VC) || defined(VEC_VCL)
 
-	#if defined(VEC_VC)
-		#include <Vc/vector.h>
-	#endif
-	#if defined(VEC_VCL)
-		#include <vectorclass.h>
-	#endif
+
 
 	// compile time constant with defaults
 	// assumed SIMD width (4 for Xeon, 8 for Xeon Phi)
 	#ifndef VEC_LENGTH
 		#ifdef SINGLE_PRECISION
 //			#define VEC_LENGTH VC_FLOAT_V_SIZE // use Vc
-			#ifdef __MIC__
+			#if defined(__MIC__) || defined(__AVX512F__)
 				#define VEC_LENGTH 16
 			#else
 				#define VEC_LENGTH 8
 			#endif
 		#else
 //			#define VEC_LENGTH VC_DOUBLE_V_SIZE // use Vc
-			#ifdef __MIC__
+			#if defined(__MIC__) || defined(__AVX512F__)
 				#define VEC_LENGTH 8
 			#else
 				#define VEC_LENGTH 4
@@ -41,67 +36,70 @@
 		#endif
 	#endif
 
-	// use one library to define real_vec_t
-	#ifdef VEC_INTEL
+	// select one library to define double_v and float_v
+	#ifdef VEC_INTEL // NOTE: Intel selected
 		#ifdef __MIC__
+		#warning "Using Intel vector classes for KNC"
 		#include <micvec.h>
 		#else
+		#warning "Using Intel vector classes for AVX"
 		#include <dvec.h>
 		#endif
 
-//		#warning "Using Intel vector classes"
-		#ifdef __MIC__
+		#if defined(__MIC__) || defined(__AVX512F__)
 		typedef F64vec8 double_v;
 		typedef F32vec16 float_v;
 		#else
 		typedef F64vec4 double_v;;
 		typedef F32vec8 float_v;
 		#endif
-	#elif defined(VEC_VC)
-//		#warning "Using Vc"
+
+	#elif defined(VEC_VC) // NOTE: VC selected
+		#warning "Using Vc"
+		#include <Vc/vector.h>
 		using Vc::double_v;
 		using Vc::float_v;
-	#elif defined(VEC_VCL)
-#undef USE_VCL_ORIGINAL
-#if !defined(USE_VCL_ORIGINAL)
-	#ifdef __MIC__
-		#warning "Using VCL (Vector Class Library) with Vec8dMod"
-	class Vec8dMod : public Vec8d {
-		public:
-			Vec8dMod(double d) : Vec8d(d) {}
-			friend Vec8d operator *(const Vec8dMod &a, const double &b) { return Vec8d(_mm512_mul_pd(a, _mm512_set1_pd(b))); } 
-	};
-	#define Vec8d Vec8dMod
-	#else
-	class Vec4dMod : public Vec4d {
-		public:
-			Vec4dMod(double d) : Vec4d(d) {}
-			friend Vec4d operator *(const Vec4dMod &a, const double &b) { return Vec4d(_mm256_mul_pd(a, _mm256_set1_pd(b))); } 
-	};
-	#define Vec4d Vec4dMod
-	#endif
-#endif
-//		#warning "Using VCL (Vector Class Library)"
-		#ifdef __MIC__
-		typedef Vec8d double_v;
-		typedef Vec16f float_v;
+
+	#elif defined(VEC_VCL) // NOTE: VCL selected
+		#warning "Using VCL"
+		#if defined(__MIC__) || defined(__AVX512F__)
+			#define MAX_VECTOR_SIZE 512
 		#else
-		typedef Vec4d double_v;
-		typedef Vec8f float_v;
+			#define MAX_VECTOR_SIZE 256
+		#endif
+		
+		#include <vectorclass.h>
+	
+		#undef USE_VCL_ORIGINAL
+		#if !defined(USE_VCL_ORIGINAL)
+		#warning "Using VCL (Vector Class Library) with Vec8dMod/Vec4dMod"
+			#if defined(__MIC__) || defined(__AVX512F__)
+				class Vec8dMod : public Vec8d {
+					public:
+						Vec8dMod(double d) : Vec8d(d) {}
+						friend Vec8d operator *(const Vec8dMod &a, const double &b) { return Vec8d(_mm512_mul_pd(a, _mm512_set1_pd(b))); } 
+				};
+			#define Vec8d Vec8dMod
+			#else
+				class Vec4dMod : public Vec4d {
+					public:
+						Vec4dMod(double d) : Vec4d(d) {}
+						friend Vec4d operator *(const Vec4dMod &a, const double &b) { return Vec4d(_mm256_mul_pd(a, _mm256_set1_pd(b))); } 
+				};
+			#define Vec4d Vec4dMod
+			#endif
+		#endif
+
+		#if defined(__MIC__) || defined(__AVX512F__)
+			typedef Vec8d double_v;
+			typedef Vec16f float_v;
+		#else
+			typedef Vec4d double_v;
+			typedef Vec8f float_v;
 		#endif
 	#endif
 #else
-	// we do not use any SIMD library
-//	#warning "No vector library defined"
-	#ifndef VEC_LENGTH
-		#ifdef __MIC__
-			#define VEC_LENGTH 8
-		#else
-			#define VEC_LENGTH 4
-		#endif
-	#endif
-	struct float_v { float data[VEC_LENGTH]; };
-	struct double_v { double data[VEC_LENGTH]; };
+	static_assert(false, "No vector library defined at compile time");
 #endif
 
 #ifdef SINGLE_PRECISION
