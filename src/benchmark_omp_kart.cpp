@@ -94,8 +94,9 @@ int main(void)
 		#elif defined(VEC_VCL)
 		options << " -DVEC_VCL";
 		#else
-			out << "NO_VEC_LIB";
+		std::cerr << "Warning: NO_VEC_LIB configured" << std::endl;
 		#endif
+		options << " -DVEC_LENGTH=" << VEC_LENGTH;
 		ts.compiler_options += options.str(); // append to default initialised options
 
 		time::rep build_time = 0.0;
