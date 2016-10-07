@@ -12,17 +12,17 @@ VECCLASS_PATH=thirdparty/vcl
 VECCLASS_PATH_KNC=thirdparty/vcl_KNC
 KART_PATH=thirdparty/kart
 
-VECLIB="VEC_INTEL"
+#VECLIB="VEC_INTEL"
 #VECLIB="VEC_VC"
-#VECLIB="VEC_VCL"
+VECLIB="VEC_VCL"
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 
 OPTIONS="-std=c++11 -O3 -restrict -qopenmp -qopt-report=5" #-Wall
 #OPTIONS="-std=c++11 -g -O3 -restrict -openmp -qopt-report=5 -DUSE_INITZERO" #-Wall
-OPTIONS_CPU="$OPTIONS -xHost -DVC_DOUBLE_V_SIZE=4"
-OPTIONS_KNL="$OPTIONS -xHost -DVC_DOUBLE_V_SIZE=8"
-OPTIONS_KNC="$OPTIONS -mmic -DVC_DOUBLE_V_SIZE=8"
+OPTIONS_CPU="$OPTIONS -xHost -DVEC_LENGTH=4"  # -DVC_DOUBLE_V_SIZE=4"
+OPTIONS_KNL="$OPTIONS -xmic-avx512 -DVEC_LENGTH=8" # -DVC_DOUBLE_V_SIZE=8"
+OPTIONS_KNC="$OPTIONS -mmic -DVEC_LENGTH=8"  # -DVC_DOUBLE_V_SIZE=8"
 #OPTIONS_KNC="$OPTIONS_KNC -opt-prefetch-distance=6,1"
 
 INCLUDE="-Iinclude -I${HAM_PATH}/include -I${KART_PATH}/include"
