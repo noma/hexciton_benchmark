@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#PBS -A # account for cpu time
+#PBS -N hexciton_benchmark_knl # job name
+
+#PBS -l nodes=1:ppn=68 
+#PBS -l os=CLE_quad_flat 
+#PBS -l walltime=04:00:00
+
+#PBS -o STDOUT_TEMPLATE # standard out file
+#PBS -e STDERR_TEMPLATE # standard error file
+#PBS -j oe # join error into output
+
+
