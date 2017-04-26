@@ -9,7 +9,7 @@ EXE=$1 # NOTE: absolute path
 
 # use optional second argument or 'lscpu' to determine OMP_NUM_THREADS
 THREADS=${2:-$(lscpu | grep "^CPU(s):" | tr -s ' ' | cut -d ' ' -f 2)}
-echo "run_knl.sh: setting OMP_NUM_THREADS to: $THREADS"
+echo "# run_knl.sh: setting OMP_NUM_THREADS to: $THREADS"
 
 unset KMP_AFFINITY
 OMP_NUM_THREADS=$THREADS OMP_PLACES=threads OMP_PROC_BIND=true $EXE

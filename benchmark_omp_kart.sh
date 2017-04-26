@@ -35,7 +35,7 @@ for config in ${@:3}
 do
 	# copy the config
 	cp $config $RESULT_PATH/
-	KART_CONFIGS="${RESULT_PATH}/$(basename $config) $KART_CONFIGS"
+	KART_CONFIGS="$KART_CONFIGS ${RESULT_PATH}/$(basename $config)"
 done
 echo "Copied all KART configs: $KART_CONFIGS"
 
@@ -50,7 +50,7 @@ for veclib in "${VECLIBS[@]}"
 do
 	BIN_PATH=$RESULT_PATH/bin.${DEVICE}_${veclib}
 	echo "Rebuilding... $BIN_PATH"
-	./make_omp_kart.sh -p $BIN_PATH -v $veclib -i $ITERATIONS_PER_RUN -w $WARM_UP_ITERATIONS $DEV_ARG
+	./make_omp_kart.sh -p $BIN_PATH -v $veclib -i $ITERATIONS_PER_RUN -w $WARM_UP_ITERATIONS $MAKE_ARGS
 
 	# run through all KART configs, use the copies
 	for config in $KART_CONFIGS

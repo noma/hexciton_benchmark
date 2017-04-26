@@ -10,7 +10,7 @@ source ./enqueue_benchmark.sh
 RESULT_DIR_SUFFIX="_hsw"
 MAKE_ARGS="-c" # "-c -t CC"
 CONFIGS="g++.kart clang++.kart icpc.kart"
-JOB_SCRIPT_HEADER=jobscript_cray_header_mpp2test.template
+JOB_SCRIPT_HEADER=jobscript_cray_header_mpp2.template
 JOB_SCRIPT_BODY=jobscript_cray_body.template
 
 create_job "$RESULT_DIR_SUFFIX" "$MAKE_ARGS" "$CONFIGS" "$JOB_SCRIPT_HEADER" "$JOB_SCRIPT_BODY"

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#PBS -A # account for cpu time
+#PBS -N hexciton_benchmark_hsw # job name
+
+#PBS -q mpp2q
+#PBS -l nodes=4:ppn=24 
+#PBS -l walltime=12:00:00
+
+#PBS -o STDOUT_TEMPLATE # standard out file
+#PBS -e STDERR_TEMPLATE # standard error file
+#PBS -j oe # join error into output
+

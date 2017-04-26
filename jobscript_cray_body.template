@@ -27,5 +27,13 @@ echo "Using configs: $CONFIGS"
 
 # one process using all hardware threads on a KNL node
 # NOTE: MAKE_ARGS must be quoted as it can contain spaces
+
+if [[ $MAKE_ARGS == *"-t CC"* ]]; then
+	echo "Putting Cray-built Boost into path.."
+	# Cray Boost build
+	export BOOST_ROOT=$HOME/Software/boost_1_61_0_cce_8.5.1_gnu_5.3.0
+	export LD_LIBRARY_PATH=$HOME/Software/boost_1_61_0_cce_8.5.1_gnu_5.3.0/lib:$LD_LIBRARY_PATH
+fi
+
 aprun -n 1 -N 1 -cc none ./benchmark_omp_kart.sh $RESULT_DIR "$MAKE_ARGS" $CONFIGS
 

@@ -11,6 +11,7 @@ function create_job {
 	local CONFIGS=$3
 	local JOB_SCRIPT_HEADER=$4
 	local JOB_SCRIPT_BODY=$5
+	local MSUB_ARGS=$6
 
 	local RESULT_DIR=$(date +%Y-%m-%d_%H%M%S)${RESULT_DIR_SUFFIX}
 	local WORKING_DIR=$(pwd)/results/$RESULT_DIR
@@ -33,7 +34,7 @@ function create_job {
 	sed -i "s%MAKE_ARGS_TEMPLATE%${MAKE_ARGS}%g" $JOB_SCRIPT
 	sed -i "s%CONFIGS_TEMPLATE%${CONFIGS}%g" $JOB_SCRIPT
 	
-	msub $JOB_SCRIPT
+	msub $MSUB_ARGS $JOB_SCRIPT
 	
 #	# works only on KNL, msub --version: Version: moab client 9.0.2 (revision 2016072918, changeset f87b286e1b2ee995c616f2c945c5c35844737ab0)
 #	msub -F "${RESULT_DIR} ${MAKE_ARGS} ${CONFIGS}" $JOB_SCRIPT

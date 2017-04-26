@@ -93,7 +93,7 @@ VECCLASS_PATH=thirdparty/vcl
 VECCLASS_PATH_KNC=thirdparty/vcl_KNC
 KART_INCLUDE_PATH=thirdparty/kart
 
-if [[ COMPILER == "CC"  ]]
+if [[ $COMPILER == "CC"  ]]
 then
 	echo "Building with CC..."
 	KART_BUILD_PATH=thirdparty/kart/build_cray

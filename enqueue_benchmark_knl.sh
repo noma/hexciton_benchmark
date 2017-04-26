@@ -8,7 +8,7 @@
 source ./enqueue_benchmark.sh
 
 RESULT_DIR_SUFFIX="_knl"
-MAKE_ARGS="-c" # "-c -t CC"
+MAKE_ARGS="-k" # "-k -t CC"
 CONFIGS="g++.kart clang++.kart icpc.kart"
 JOB_SCRIPT_HEADER=jobscript_cray_header_tds_quad_flat.template
 JOB_SCRIPT_BODY=jobscript_cray_body.template
