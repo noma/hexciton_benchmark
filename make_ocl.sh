@@ -1,19 +1,39 @@
 #!/bin/bash
 
-# Copyright (c) 2015 Matthias Noack (ma.noack.pr@gmail.com)
+# Copyright (c) 2015-2017 Matthias Noack (ma.noack.pr@gmail.com)
 #
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 # NOTE:
-# Variables to change: CC, OPENCL_PATH, OPTIONS
+# Variables to change: CC, OPTIONS, OPENCL_LIB, OPENCL_LIB_PATH
 
-CC=icpc # also change OPTIONS
-OPTIONS="-std=c++11 -Wall -O3 -xHost -restrict -qopenmp -qopt-report=5 -DDIM=7"
-#CC=g++ # NOTE: also change OPTIONS below
-#OPTIONS="-std=c++11 -Wall -g -O3 -march=native -Drestrict=__restrict__ -fopenmp -DDIM=7"
-OPENCL_PATH=$INTELOCLSDKROOT # /opt/intel/opencl/ # NOTE: change this to your installation directory
-#OPENCL_PATH=/usr/local/cuda
+#CC=icpc # also change OPTIONS
+#OPTIONS="-std=c++11 -Wall -O3 -xHost -restrict -qopenmp -qopt-report=5 -DVEC_NONE -DDIM=7"
+CC=g++ # NOTE: also change OPTIONS below
+OPTIONS="-std=c++11 -Wall -g -O3 -march=native -Drestrict=__restrict__ -fopenmp -DVEC_NONE -DDIM=7"
+
+# Use standard headers
+OPENCL_INCLUDE_PATH=thirdparty/OpenCL/include
+
+OPENCL_LIB="OpenCL"
+OPENCL_LIB_PATH="${INTELOCLSDKROOT}/lib64" # /opt/intel/opencl/ # NOTE: change this to your installation directory
+
+#OPENCL_LIB="OpenCL"
+#OPENCL_LIB_PATH="/usr/local/cuda/lib64
+
+#OPENCL_LIB="OpenCL"
+#OPENCL_PATH="${HOME}/Software/pocl-0.14_tds/lib64"
+
+#OPENCL_LIB="amdocl64"
+#OPENCL_PATH="${HOME}/Software/ocl_sdks/amd/app_sdk_3.0.130.136/AMDAPPSDK-3.0/lib/x86_64/sdk"
+
+#OPENCL_LIB="intelocl"
+#OPENCL_PATH="${HOME}/Software/ocl_sdks/intel/opencl_runtime_16.1.1/opt/intel/opencl-1.2-6.4.0.25/lib64"
+
+#OPENCL_LIB="intelocl_2_1"
+#OPENCL_PATH="${HOME}/Software/ocl_sdks/intel/intel_sdk_for_opencl_2017_7.0.0.2511_x64/opt/intel/opencl/exp-runtime-2.1/lib64"
+
 OCL_BUILD_OPTIONS="" #"-cl-fast-relaxed-math"
 
 NUM_ITERATIONS=26 # including warmup below
@@ -23,10 +43,9 @@ INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
 HAM_PATH=thirdparty/ham
 CLU_PATH_INCLUDE=thirdparty/CLU.git
 CLU_PATH_LIB=thirdparty/CLU/clu_runtime
-OCL_INCLUDE_PATH=thirdparty/OpenCL/include
 
-INCLUDE="-Iinclude -I${HAM_PATH}/include/ -I${OPENCL_PATH}/include -I${OCL_INCLUDE_PATH} -I${CLU_PATH_INCLUDE}"
-LIB="-lrt -L${OPENCL_PATH}/lib64 -lOpenCL ${CLU_PATH_LIB}/libclu_runtime.a"
+INCLUDE="-Iinclude -I${HAM_PATH}/include/ -I${OPENCL_INCLUDE_PATH} -I${CLU_PATH_INCLUDE}"
+LIB="-lrt -L${OPENCL_LIB_PATH} -l${OPENCL_LIB} ${CLU_PATH_LIB}/libclu_runtime.a"
 
 BUILD_DIR_CPU="bin.cpu"
 BUILD_DIR_KNL="bin.knl"
