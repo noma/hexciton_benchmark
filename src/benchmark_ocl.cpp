@@ -15,7 +15,7 @@
 #include "ham/util/time.hpp" // ham::util::time
 
 #include "common.hpp"
-#include "kernel/kernel.hpp"
+//#include "kernel/kernel.hpp"
 
 using namespace ham::util;
 

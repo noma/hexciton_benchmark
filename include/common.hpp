@@ -11,11 +11,19 @@
 #include <functional>
 #include <iostream>
 
+
+#ifdef SINGLE_PRECISION
+//	#warning "Using single precision (float)"
+	using real_t = float;
+#else
+	using real_t = double;
+#endif
+
+using complex_t = std::complex<real_t>;
+
+
 // SIMD vector libraries
 #if defined(VEC_INTEL) || defined(VEC_VC) || defined(VEC_VCL)
-
-
-
 	// compile time constant with defaults
 	// assumed SIMD width (4 for Xeon, 8 for Xeon Phi)
 	#ifndef VEC_LENGTH
@@ -98,20 +106,18 @@
 			typedef Vec8f float_v;
 		#endif
 	#endif
-#else
-	static_assert(false, "No vector library defined at compile time");
-#endif
-
-#ifdef SINGLE_PRECISION
+	
+	#ifdef SINGLE_PRECISION
 //	#warning "Using single precision (float)"
-	using real_t = float;
-	using real_vec_t = float_v;
+		using real_vec_t = float_v;
+	#else
+		using real_vec_t = double_v;
+	#endif
+#elif defined(VEC_NONE)
+	// all good, explicitly asked for no vector library
 #else
-	using real_t = double;
-	using real_vec_t = double_v;
+	static_assert(false, "No vector library defined at compile time (use VEC_NONE to disable).");
 #endif
-
-using complex_t = std::complex<real_t>;
 
 // alignment for memory allocations
 #ifndef DEFAULT_ALIGNMENT
@@ -153,6 +159,9 @@ T* allocate_aligned(size_t size, size_t alignment = DEFAULT_ALIGNMENT)
 		std::cerr << "Error: posix_memalign() returned: " << err << std::endl;
 	return ptr;
 }
+
+// reference kernel signature
+void commutator_reference(complex_t* sigma_in, complex_t* sigma_out, complex_t* hamiltonian, size_t dim, size_t num_sigma, real_t hbar, real_t dt);
 
 // intitialise sigma matrices
 void initialise_sigma(complex_t* sigma_in, complex_t* sigma_out, size_t dim, size_t num);

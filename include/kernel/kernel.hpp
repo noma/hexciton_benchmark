@@ -8,7 +8,7 @@
 
 #include "common.hpp"
 
-void commutator_reference(complex_t* sigma_in, complex_t* sigma_out, complex_t* hamiltonian, size_t dim, size_t num_sigma, real_t hbar, real_t dt);
+// NOTE: reference kernel is declared in common.hpp
 
 #define SCALAR_PARAMETERS real_t const* restrict sigma_in,    \
                            real_t* restrict sigma_out,         \
