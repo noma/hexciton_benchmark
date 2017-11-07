@@ -10,8 +10,26 @@ mkdir -p ham/include/ham/util/time
 wget https://raw.githubusercontent.com/noma/ham/master/include/ham/util/time.hpp -P ham/include/ham/util/time/
 wget https://raw.githubusercontent.com/noma/ham/master/LICENSE_1_0.txt -P ham/
 
-# get CLU
-git clone https://github.com/Computing-Language-Utility/CLU CLU.git
+# get noma-ocl and dependencies
+# Standalone/Library Build
+git clone git@github.com:noma/ocl.git
+git clone git@github.com:noma/bmt.git
+git clone git@github.com:noma/misc.git
+git clone git@github.com:noma/typa.git
+cd ocl/thirdparty
+ln -s ../../bmt/ bmt
+ln -s ../../misc/ misc
+ln -s ../../typa/ typa
+cd ../../
+# Include it into a CMake-Project
+#dependencies=(ocl bmt misc typa)
+#for i in "${dependencies[@]}"
+#do
+	#git clone git@github.com:noma/${i}.git
+	#cd ${i}
+	#git checkout-index -a -f --prefix=../../../hexciton_benchmark/thirdparty/${i}/
+	#cd ..
+#done
 
 # get Vc
 git clone https://github.com/VcDevel/Vc vc.git
@@ -26,4 +44,3 @@ rm -f vectorclass.zip
 git clone https://bitbucket.org/veclibknc/vclknc.git vclknc.git
 # merge with vcl 
 cp -rf vclknc.git/* vcl_mic
-

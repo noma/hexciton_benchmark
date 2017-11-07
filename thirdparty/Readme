@@ -3,6 +3,7 @@ Check out the links below for further information.
 
 The downloads.tar.gz contain versions of all the thirdparty codes.
 If you don't wish to download, simply run:
+	# TODO: update downloads.tar.gz with noma-ocl and dependencies
 	tar -xzf downloads.tar.gz
 	./build.sh
 
@@ -12,8 +13,8 @@ followed by "build.sh". See the scripts for details.
 HAM: 
 	https://github.com/noma/ham
 
-CLU: 
-	https://github.com/Computing-Language-Utility/CLU
+noma-ocl:
+	https://github.com/noma/ocl
 
 Vc: 
 	http://code.compeng.uni-frankfurt.de/projects/vc/

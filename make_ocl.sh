@@ -40,12 +40,14 @@ NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
 
-HAM_PATH=thirdparty/ham
-CLU_PATH_INCLUDE=thirdparty/CLU.git
-CLU_PATH_LIB=thirdparty/CLU/clu_runtime
+HAM_PATH_INCLUDE=thirdparty/ham/include/
+NOMAOCL_PATH_INCLUDE=thirdparty/ocl/include/
+NOMAOCL_PATH_LIB=thirdparty/ocl/build/
 
-INCLUDE="-Iinclude -I${HAM_PATH}/include/ -I${OPENCL_INCLUDE_PATH} -I${CLU_PATH_INCLUDE}"
-LIB="-lrt -L${OPENCL_LIB_PATH} -l${OPENCL_LIB} ${CLU_PATH_LIB}/libclu_runtime.a"
+NOMAMISC_PATH_INCLUDE=thirdparty/misc/include/
+
+INCLUDE="-Iinclude -I${HAM_PATH_INCLUDE} -I${OPENCL_INCLUDE_PATH} -I${NOMAOCL_PATH_INCLUDE} -I${NOMAMISC_PATH_INCLUDE}"
+LIB="-lrt -lboost_program_options -L${OPENCL_LIB_PATH} -l${OPENCL_LIB} ${NOMAOCL_PATH_LIB}/libnoma_ocl.a ${NOMAOCL_PATH_LIB}/build.noma_typa/libnoma_typa.a"
 
 BUILD_DIR_CPU="bin.cpu"
 BUILD_DIR_KNL="bin.knl"
