@@ -38,8 +38,14 @@ if (!file.exists(file)) {
 	quit()
 }
 
+# get file line-by-line
+raw_data <- readLines(paste(file))
+
+# filter out lines starting with "build_time"
+raw_data <- raw_data[grep("build_time", raw_data, invert=TRUE)]
+
 # read data
-data <- read.table(file, header=TRUE, sep="\t")
+data <- read.table(textConnection(paste(raw_data, collapse="\n")), header=TRUE, sep="\t")
 
 # check if column exists
 if (!(column %in% colnames(data))) {
