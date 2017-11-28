@@ -125,40 +125,10 @@ int main(void)
 	// output the used device
 	ocl_helper.write_device_info(std::cerr);
 
-	/*/ set up OpenCL using CLU
-	clu_initialize_params init_params = {}; // NOTE: null initialise!
-	if (DEVICE_TYPE != CL_DEVICE_TYPE_GPU)
-		init_params.vendor_name = "Intel(R) Corporation";
-	init_params.default_queue_props = CL_QUEUE_PROFILING_ENABLE;
-	init_params.preferred_device_type = DEVICE_TYPE; // set device type
-	init_params.compile_options = compile_options_common.c_str(); // set default compile options
-	cl_int status = cluInitialize(&init_params);
-
-	// output the used device
-	cl_device_id dev_id;
-	err = clGetCommandQueueInfo(ocl_helper.queue(), CL_QUEUE_DEVICE, sizeof(cl_device_id), &dev_id, nullptr);
-	noma::ocl::error_handler(err, "clGetCommandQueueInfo()");
-	clu_device_info dev_info = cluGetDeviceInfo(dev_id, &err);
-	noma::ocl::error_handler(err, "cluGetDeviceInfo()");
-	std::cerr << "OpenCL device name:    " << dev_info.device_name << std::endl;
-	std::cerr << "OpenCL device vendor:  " << dev_info.device_vendor << std::endl;
-	std::cerr << "OpenCL device profile: " << dev_info.device_profile << std::endl;
-	std::cerr << "OpenCL device version: " << dev_info.device_version << std::endl;
-	std::cerr << "OpenCL driver version: " << dev_info.driver_version << std::endl;*/
-
 	// allocate OpenCL device memory // DONE: replace with create_buffer() from noma::ocl, use C++ interface
 	noma::ocl::buffer hamiltonian_ocl = ocl_helper.create_buffer(CL_MEM_READ_ONLY,  size_hamiltonian_byte);
 	noma::ocl::buffer sigma_in_ocl    = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte      );
 	noma::ocl::buffer sigma_out_ocl   = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte      );
-
-	/*/ old code
-	cl_mem hamiltonian_ocl = clCreateBuffer(ocl_helper.context(), CL_MEM_READ_ONLY, size_hamiltonian_byte, 0, &err);
-	noma::ocl::error_handler(err, "clCreateBuffer(hamiltonian_ocl)");
-	cl_mem sigma_in_ocl = clCreateBuffer(ocl_helper.context(), CL_MEM_READ_WRITE, size_sigma_byte, 0, &err);
-	noma::ocl::error_handler(err, "clCreateBuffer(sigma_in_ocl)");
-	cl_mem sigma_out_ocl = clCreateBuffer(ocl_helper.context(), CL_MEM_READ_WRITE, size_sigma_byte, 0, &err);
-	noma::ocl::error_handler(err, "clCreateBuffer(sigma_out_ocl)");
-	*/
 
 	// function to build and set-up a kernel
 	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options)
@@ -276,36 +246,18 @@ int main(void)
 	}; // benchmark
 
 	// build one-dimensional nd_range
-	/* built after the following original clu_nd_range:
-	{ 1, // NDRange dimension
-		{ num }, // global size
-		{ },     // local size
-		{ }      // offset
-	} */
 	noma::ocl::nd_range nd_range_1d_num;
 	nd_range_1d_num.global = cl::NDRange(num);
 	nd_range_1d_num.local  = cl::NullRange;
 	nd_range_1d_num.offset = cl::NullRange
 
 	// build one-dimensional nd_range, divide num by VEC_LENGTH
-	/* built after the following original clu_nd_range:
-	{ 1, // NDRange dimension
-		{ num / VEC_LENGTH }, // global size
-		{ }, // local size
-		{ } // offset
-	} */
 	noma::ocl::nd_range nd_range_1d_num_vec_length;
 	nd_range_1d_num_vec_length.global = cl::NDRange(num / (VEC_LENGTH));
 	nd_range_1d_num_vec_length.local  = cl::NullRange;
 	nd_range_1d_num_vec_length.offset = cl::NullRange;
 
 	// build two-dimensional nd_range
-	/* built after the following original clu_nd_range:
-	{ 2, // NDRange dimension
-		{ VEC_LENGTH_AUTO,  num / (VEC_LENGTH_AUTO) }, // global size
-		{ VEC_LENGTH_AUTO, PACKAGES_PER_WG },         // local size
-		{ } // offset
-	} */
 	noma::ocl::nd_range nd_range_2d;
 	nd_range_2d.global = cl::NDRange(VEC_LENGTH_AUTO, num / (VEC_LENGTH_AUTO));
 	nd_range_2d.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG        );
@@ -423,12 +375,6 @@ int main(void)
 	size_t block_dim_y = NUM_SUB_GROUPS;
 
 	// build two-dimensional nd_range optimised for Nvidia K40
-	/* built after the following original clu_nd_range:
-	{ 2, // NDRange dimension
-		{ (NUM / (block_dim_y * CHUNK_SIZE)) * block_dim_x, block_dim_y }, // global size
-		{ block_dim_x, block_dim_y }, // local size
-		{ } // offset
-	}*/
 	noma::ocl::nd_range nd_range_2d_nv_k40;
 	nd_range_2d_nv_k40.global = cl::NDRange((NUM / (block_dim_y * CHUNK_SIZE)) * block_dim_x, block_dim_y);
 	nd_range_2d_nv_k40.local  = cl::NDRange(                                     block_dim_x, block_dim_y);
