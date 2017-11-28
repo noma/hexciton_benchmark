@@ -249,7 +249,7 @@ int main(void)
 	noma::ocl::nd_range nd_range_1d_num;
 	nd_range_1d_num.global = cl::NDRange(num);
 	nd_range_1d_num.local  = cl::NullRange;
-	nd_range_1d_num.offset = cl::NullRange
+	nd_range_1d_num.offset = cl::NullRange;
 
 	// build one-dimensional nd_range, divide num by VEC_LENGTH
 	noma::ocl::nd_range nd_range_1d_num_vec_length;
