@@ -151,11 +151,11 @@ int main(void)
 		noma::ocl::error_handler(err, "Error creating kernel.");
 
 		// set kernel arguments
-		err = kernel.setArg(0, sigma_in_ocl);
+		err = kernel.setArg(0, static_cast<cl::Buffer>(sigma_in_ocl));
 		noma::ocl::error_handler(err, "kernel.setArg(0)");
-		err = kernel.setArg(1, sigma_out_ocl);
+		err = kernel.setArg(1, static_cast<cl::Buffer>(sigma_out_ocl));
 		noma::ocl::error_handler(err, "kernel.setArg(1)");
-		err = kernel.setArg(2, hamiltonian_ocl);
+		err = kernel.setArg(2, static_cast<cl::Buffer>(hamiltonian_ocl));
 		noma::ocl::error_handler(err, "kernel.setArg(2)");
 		// GCC bug work-around (#ifdef __GNUC__) & type conversion
 		// http://stackoverflow.com/questions/19616610/c11-lambda-doesnt-take-const-variable-by-reference-why
