@@ -151,11 +151,11 @@ int main(void)
 		noma::ocl::error_handler(err, "Error creating kernel.");
 
 		// set kernel arguments
-		err = kernel.setArg(0, &sigma_in_ocl);
+		err = kernel.setArg(0, sigma_in_ocl);
 		noma::ocl::error_handler(err, "kernel.setArg(0)");
-		err = kernel.setArg(1, &sigma_out_ocl);
+		err = kernel.setArg(1, sigma_out_ocl);
 		noma::ocl::error_handler(err, "kernel.setArg(1)");
-		err = kernel.setArg(2, &hamiltonian_ocl);
+		err = kernel.setArg(2, hamiltonian_ocl);
 		noma::ocl::error_handler(err, "kernel.setArg(2)");
 		// GCC bug work-around (#ifdef __GNUC__) & type conversion
 		// http://stackoverflow.com/questions/19616610/c11-lambda-doesnt-take-const-variable-by-reference-why
@@ -163,16 +163,16 @@ int main(void)
 		// Internet:                                    cl_int setArg(cl_uint index, size_type size, const void *argPtr)
 		// thirdparty/ocl/thirdparty/include/CL/cl.hpp: cl_int setArg(cl_uint index,  ::size_t size,       void* argPtr)
 		int32_t num_tmp = static_cast<int32_t>(num);
-		err = kernel.setArg(3, sizeof(int32_t), static_cast<void*>(&num_tmp));
+		err = kernel.setArg(3, num_tmp);
 		noma::ocl::error_handler(err, "kernel.setArg(3)");
 		int32_t dim_tmp = static_cast<int32_t>(dim);
-		err = kernel.setArg(4, sizeof(int32_t), static_cast<void*>(&dim_tmp));
+		err = kernel.setArg(4, dim_tmp);
 		noma::ocl::error_handler(err, "kernel.setArg(4)");
 		real_t hbar_tmp = static_cast<real_t>(hbar);
-		err = kernel.setArg(5, sizeof(real_t), static_cast<void*>(&hbar_tmp));
+		err = kernel.setArg(5, hbar_tmp);
 		noma::ocl::error_handler(err, "kernel.setArg(5)");
 		auto dt_tmp = dt;
-		err = kernel.setArg(6, sizeof(real_t), static_cast<void*>(&dt_tmp));
+		err = kernel.setArg(6, dt_tmp);
 		noma::ocl::error_handler(err, "kernel.setArg(6)");
 
 		return kernel;
