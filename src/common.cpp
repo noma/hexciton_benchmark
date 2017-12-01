@@ -9,9 +9,7 @@
 #include <cmath> // abs
 #include <iostream>
 
-#include "ham/util/time.hpp"
-
-using namespace ham::util;
+#include "noma/bmt/bmt.hpp"
 
 void print_compile_config(std::ostream& out)
 {
@@ -212,10 +210,10 @@ real_t compare_matrices(complex_t* a, complex_t* b, size_t dim, size_t num)
 
 void benchmark_kernel(std::function<void()> kernel, std::string name, size_t overall_runs, size_t warmup_runs)
 {
-	time::statistics stats(overall_runs, warmup_runs);
+	noma::bmt::statistics stats(overall_runs - warmup_runs, warmup_runs);
 	for (size_t i = 0; i < overall_runs; ++i)
 	{
-		time::timer t;
+		noma::bmt::timer t;
 		kernel();
 		stats.add(t);
 	}

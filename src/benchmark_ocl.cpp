@@ -12,12 +12,10 @@
 #include <sstream>
 
 #include "noma/ocl/helper.hpp" // noma::ocl::helper
-#include "ham/util/time.hpp" // ham::util::time
+#include "noma/bmt/bmt.hpp" //nome::bmt
 
 #include "common.hpp"
 //#include "kernel/kernel.hpp"
-
-using namespace ham::util;
 
 #ifndef DEVICE_TYPE
 	// CL_DEVICE_TYPE_CPU  
@@ -74,7 +72,7 @@ int main(void)
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	std::cout << "name\t" << time::statistics::header_string() << std::endl;
+	std::cout << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
 	
 	// perform reference computation for correctness analysis
 	benchmark_kernel(
@@ -119,16 +117,16 @@ int main(void)
 	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options)
 	{
 		// build kernel
-		time::rep build_time = 0.0;
+		noma::bmt::duration build_time;
 		cl::Program prog;
 		{
-			time::timer t;
+			noma::bmt::timer t;
 			prog = ocl_helper.create_program_from_file(file_name, "", compile_options);
 			build_time = t.elapsed();
 		}
 		
 		std::stringstream time_ss;
-		time_ss << std::scientific << build_time;
+		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
 		std::cout << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
 		
 		// get kernel from programm using C++ OCL API
@@ -222,17 +220,19 @@ int main(void)
 
 		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options);
 
-		cl_ulong time;
-		time::statistics stats(NUM_ITERATIONS, NUM_WARMUP);
+		// NUM_ITERATIONS is number of overall iterations (includes NUM_WARMUP)
+		// according to noma::bmt example.cpp, NUM_ITERATIONS does NOT inclued NUM_WARMUP
+		noma::bmt::statistics stats(kernel_name, NUM_ITERATIONS-NUM_WARMUP, NUM_WARMUP);
 
-		// benchmark loop: NUM_ITERATIONS is number of overall iterations (includes NUM_WARMUP)
+		// benchmark loop
 		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
 		{
-			time = ocl_helper.run_kernel_timed(kernel, range);
-			stats.add(static_cast<time::rep>(time));
+			noma::bmt::timer timer;
+			ocl_helper.run_kernel_timed(kernel, range);
+			stats.add(timer);
 		}
 
-		std::cout << kernel_name << "\t" << stats.string() << std::endl;
+		std::cout << stats.string() << std::endl;
 		
 		read_and_compare_sigma();
 	}; // benchmark

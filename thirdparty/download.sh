@@ -5,11 +5,6 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-# get time utility from HAM
-mkdir -p ham/include/ham/util/time
-wget https://raw.githubusercontent.com/noma/ham/master/include/ham/util/time.hpp -P ham/include/ham/util/time/
-wget https://raw.githubusercontent.com/noma/ham/master/LICENSE_1_0.txt -P ham/
-
 # get noma-ocl and dependencies
 # Standalone/Library Build
 git clone git@github.com:noma/ocl.git

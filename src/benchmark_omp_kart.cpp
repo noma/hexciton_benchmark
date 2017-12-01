@@ -9,14 +9,13 @@
 #include <cmath>
 #include <sstream>
 
-#include "ham/util/time.hpp" // ham::util::time
+#include "noma/bmt/bmt.hpp" // noma::bmt
 
 #include "common.hpp"
 #include "kernel/kernel.hpp"
 
 #include "kart/kart.hpp"
 
-using namespace ham::util;
 
 int main(void)
 {
@@ -46,7 +45,7 @@ int main(void)
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	std::cout << "name\t" << time::statistics::header_string() << std::endl;
+	std::cout << noma::bmt::statistics::header_string(true) << std::endl;
 	
 	// perform reference computation for correctness analysis
 	benchmark_kernel(
@@ -99,15 +98,15 @@ int main(void)
 		options << " -DVEC_LENGTH=" << VEC_LENGTH;
 		ts.compiler_options += options.str(); // append to default initialised options
 
-		time::rep build_time = 0.0;
+		noma::bmt::duration build_time;
 		{
-			time::timer t;
+			noma::bmt::timer t;
 			kernel_prog.build(ts); // build with custom toolset
 			build_time = t.elapsed();
 		}
 		
 		std::stringstream time_ss;
-		time_ss << std::scientific << build_time;
+		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
 		std::cout << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
 		
 		auto kernel = kernel_prog.get_kernel<void*>(kernel_name); // kernel_caller knows the type

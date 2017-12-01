@@ -10,9 +10,6 @@ If you don't wish to download, simply run:
 To automatically download and build everything simply run "download.sh"
 followed by "build.sh". See the scripts for details.
 
-HAM: 
-	https://github.com/noma/ham
-
 noma-ocl:
 	https://github.com/noma/ocl
 

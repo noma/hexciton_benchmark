@@ -6,5 +6,5 @@
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 # delete everything
-rm -rf ham ocl bmt misc typa vc.git vclknc.git vcl vcl_mic CLU vc
+rm -rf ocl bmt misc typa vc.git vclknc.git vcl vcl_mic CLU vc
 

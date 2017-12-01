@@ -8,12 +8,11 @@
 #include <cstring> // memcpy
 #include <cmath>
 
-#include "ham/util/time.hpp" // ham::util::time
+#include "noma/bmt/bmt.hpp" // noma::bmt
 
 #include "common.hpp"
 #include "kernel/kernel.hpp"
 
-using namespace ham::util;
 
 int main(void)
 {
@@ -43,7 +42,7 @@ int main(void)
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	std::cout << "name\t" << time::statistics::header_string() << std::endl;
+	std::cout << noma::bmt::statistics::header_string(true) << std::endl;
 	
 	// perform reference computation for correctness analysis
 	benchmark_kernel(

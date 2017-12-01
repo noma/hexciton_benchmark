@@ -40,8 +40,6 @@ NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
 
-HAM_PATH_INCLUDE=thirdparty/ham/include/
-
 NOMA_OCL_PATH_INCLUDE=thirdparty/ocl/include/
 NOMA_OCL_PATH_LIB=thirdparty/ocl/build/
 
