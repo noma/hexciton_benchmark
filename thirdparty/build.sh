@@ -10,7 +10,7 @@
 cd ocl
 mkdir -p build
 cd build
-cmake -DNOMA_OCL_STANDALONE=TRUE
+cmake -DNOMA_OCL_STANDALONE=TRUE -DCMAKE_BUILD_TYPE=Release ..
 make -j8
 cd ../..
 
