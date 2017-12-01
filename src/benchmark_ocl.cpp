@@ -41,21 +41,6 @@ using namespace ham::util;
 	#define WARP_SIZE 32
 #endif
 
-// integrate into benchmark()?
-void benchmark_ocl_kernel(cl::Kernel kernel, std::string name, noma::ocl::nd_range& range, size_t num, size_t overall_runs, size_t warmup_runs, noma::ocl::helper& ocl_helper)
-{
-	cl_ulong time;
-	time::statistics stats(overall_runs, warmup_runs);
-
-	// benchmark loop
-	for (size_t i = 0; i < overall_runs; ++i)
-	{
-		time = ocl_helper.run_kernel_timed(kernel, range);
-		stats.add(static_cast<time::rep>(time));
-	}
-
-	std::cout << name << "\t" << stats.string() << std::endl;
-}
 
 int main(void)
 {
@@ -126,9 +111,9 @@ int main(void)
 	ocl_helper.write_device_info(std::cerr);
 
 	// allocate OpenCL device memory // DONE: replace with create_buffer() from noma::ocl, use C++ interface
-	noma::ocl::buffer hamiltonian_ocl = ocl_helper.create_buffer(CL_MEM_READ_ONLY,  size_hamiltonian_byte);
-	noma::ocl::buffer sigma_in_ocl    = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte      );
-	noma::ocl::buffer sigma_out_ocl   = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte      );
+	noma::ocl::buffer hamiltonian_ocl = ocl_helper.create_buffer(CL_MEM_READ_ONLY, size_hamiltonian_byte);
+	noma::ocl::buffer sigma_in_ocl = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte);
+	noma::ocl::buffer sigma_out_ocl = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte);
 
 	// function to build and set-up a kernel
 	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options)
@@ -148,7 +133,7 @@ int main(void)
 		
 		// get kernel from programm using C++ OCL API
 		cl::Kernel kernel(prog, kernel_name.c_str(), &err);
-		noma::ocl::error_handler(err, "Error creating kernel.");
+		noma::ocl::error_handler(err, "Error creating kernel: '" + kernel_name + "'.");
 
 		// set kernel arguments
 		err = kernel.setArg(0, static_cast<cl::Buffer>(sigma_in_ocl));
@@ -159,9 +144,6 @@ int main(void)
 		noma::ocl::error_handler(err, "kernel.setArg(2)");
 		// GCC bug work-around (#ifdef __GNUC__) & type conversion
 		// http://stackoverflow.com/questions/19616610/c11-lambda-doesnt-take-const-variable-by-reference-why
-		// TODO: Is it okay to remove const keyword? Reference:
-		// Internet:                                    cl_int setArg(cl_uint index, size_type size, const void *argPtr)
-		// thirdparty/ocl/thirdparty/include/CL/cl.hpp: cl_int setArg(cl_uint index,  ::size_t size,       void* argPtr)
 		int32_t num_tmp = static_cast<int32_t>(num);
 		err = kernel.setArg(3, num_tmp);
 		noma::ocl::error_handler(err, "kernel.setArg(3)");
@@ -199,7 +181,7 @@ int main(void)
 	{
 		// read data from device	
 		err = ocl_helper.queue().enqueueReadBuffer(sigma_out_ocl, CL_TRUE, 0, size_sigma_byte, sigma_out);
-		noma::ocl::error_handler(err, "clEnqueueReadBuffer(sigma_out_ocl)");
+		noma::ocl::error_handler(err, "enqueueReadBuffer(sigma_out_ocl)");
 		// compute deviation from reference	(small deviations are expected)
 		deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
 		std::cerr << "Deviation:\t" << deviation << std::endl;
@@ -214,7 +196,7 @@ int main(void)
 	//     cl::NDRange local;
 	// };
 	auto benchmark = [&](const std::string& file_name, const std::string& kernel_name,
-	                     const std::string& compile_options, size_t vec_length, noma::ocl::nd_range& range,
+	                     const std::string& compile_options, size_t vec_length, const noma::ocl::nd_range& range,
 	                     decltype(&transform_matrices_aos_to_aosoa) transformation_sigma,
 	                     bool scale_hamiltonian,
 	                     decltype(&transform_matrix_aos_to_soa) transformation_hamiltonian,
@@ -240,7 +222,18 @@ int main(void)
 		write_sigma();
 
 		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options);
-		benchmark_ocl_kernel(kernel, kernel_name, range, num, NUM_ITERATIONS, NUM_WARMUP, ocl_helper);
+
+		cl_ulong time;
+		time::statistics stats(NUM_ITERATIONS, NUM_WARMUP);
+
+		// benchmark loop: NUM_ITERATIONS is number of overall iterations (includes NUM_WARMUP)
+		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
+		{
+			time = ocl_helper.run_kernel_timed(kernel, range);
+			stats.add(static_cast<time::rep>(time));
+		}
+
+		std::cout << kernel_name << "\t" << stats.string() << std::endl;
 		
 		read_and_compare_sigma();
 	}; // benchmark
@@ -260,7 +253,7 @@ int main(void)
 	// build two-dimensional nd_range
 	noma::ocl::nd_range nd_range_2d;
 	nd_range_2d.global = cl::NDRange(VEC_LENGTH_AUTO, num / (VEC_LENGTH_AUTO));
-	nd_range_2d.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG        );
+	nd_range_2d.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG);
 	nd_range_2d.offset = cl::NullRange;
 
 	// BENCHMARK: empty kernel
