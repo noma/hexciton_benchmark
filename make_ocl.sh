@@ -41,13 +41,14 @@ NUM_WARMUP=1
 INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
 
 HAM_PATH_INCLUDE=thirdparty/ham/include/
-NOMAOCL_PATH_INCLUDE=thirdparty/ocl/include/
-NOMAOCL_PATH_LIB=thirdparty/ocl/build/
 
-NOMAMISC_PATH_INCLUDE=thirdparty/misc/include/
+NOMA_OCL_PATH_INCLUDE=thirdparty/ocl/include/
+NOMA_OCL_PATH_LIB=thirdparty/ocl/build/
 
-INCLUDE="-Iinclude -I${HAM_PATH_INCLUDE} -I${OPENCL_INCLUDE_PATH} -I${NOMAOCL_PATH_INCLUDE} -I${NOMAMISC_PATH_INCLUDE}"
-LIB="-lrt -lboost_program_options -L${OPENCL_LIB_PATH} -l${OPENCL_LIB} ${NOMAOCL_PATH_LIB}/libnoma_ocl.a ${NOMAOCL_PATH_LIB}/build.noma_typa/libnoma_typa.a"
+NOMA_MISC_PATH_INCLUDE=thirdparty/misc/include/
+
+INCLUDE="-Iinclude -I${OPENCL_INCLUDE_PATH} -I${BOOST_ROOT}/include -I${HAM_PATH_INCLUDE} -I${NOMA_OCL_PATH_INCLUDE} -I${NOMA_MISC_PATH_INCLUDE}"
+LIB="-lrt -L${OPENCL_LIB_PATH} -L${BOOST_ROOT}/lib -lboost_program_options -l${OPENCL_LIB} ${NOMA_OCL_PATH_LIB}/libnoma_ocl.a ${NOMA_OCL_PATH_LIB}/build.noma_typa/libnoma_typa.a"
 
 BUILD_DIR_CPU="bin.cpu"
 BUILD_DIR_KNL="bin.knl"
