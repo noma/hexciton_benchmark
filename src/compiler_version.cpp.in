@@ -1,0 +1,22 @@
+// Copyright (c) 2017 Matthias Noack <ma.noack.pr@gmail.com>
+//
+// See accompanying file LICENSE and README for further information.
+
+#include "compiler_version.hpp"
+
+#define COMPILER_ID "@CMAKE_CXX_COMPILER_ID@"
+#define COMPILER_VERSION "@CMAKE_CXX_COMPILER_VERSION@"
+
+const char COMPILER_ID_STR[] = COMPILER_ID;
+const char COMPILER_VERSION_STR[] = COMPILER_VERSION;
+
+void write_compiler_version(std::ostream& out)
+{
+	out << "COMPILER_ID                   "
+	    << COMPILER_ID_STR
+	    << std::endl;
+
+	out << "COMPILER_VERSION              "
+	    << COMPILER_VERSION_STR
+	    << std::endl;
+}
