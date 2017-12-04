@@ -12,7 +12,7 @@
 #include <sstream>
 
 #include "noma/ocl/helper.hpp" // noma::ocl::helper
-#include "noma/bmt/bmt.hpp" //nome::bmt
+#include "noma/bmt/bmt.hpp" // noma::bmt
 
 #include "common.hpp"
 //#include "kernel/kernel.hpp"
@@ -205,7 +205,7 @@ int main(void)
 		if (transformation_hamiltonian)
 			transformation_hamiltonian(hamiltonian, dim);	
 		write_hamiltonian();
-	
+
 		initialise_sigma(sigma_in, sigma_out, dim, num);
 		std::memcpy(sigma_reference_transformed, sigma_reference, size_sigma_byte);
 		// transform memory layout if a transformation is specified
@@ -220,20 +220,15 @@ int main(void)
 
 		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options);
 
-		// NUM_ITERATIONS is number of overall iterations (includes NUM_WARMUP)
-		// according to noma::bmt example.cpp, NUM_ITERATIONS does NOT inclued NUM_WARMUP
+		// NUM_ITERATIONS includes NUM_WARMUP, while statistics' ctor expects the number of measurements and warmups separately
 		noma::bmt::statistics stats(kernel_name, NUM_ITERATIONS-NUM_WARMUP, NUM_WARMUP);
 
 		// benchmark loop
 		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
-		{
-			noma::bmt::timer timer;
-			ocl_helper.run_kernel_timed(kernel, range);
-			stats.add(timer);
-		}
+			stats.add(noma::bmt::duration(static_cast<noma::bmt::rep>(ocl_helper.run_kernel_timed(kernel, range))));
 
 		std::cout << stats.string() << std::endl;
-		
+
 		read_and_compare_sigma();
 	}; // benchmark
 
