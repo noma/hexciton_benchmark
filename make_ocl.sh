@@ -42,10 +42,10 @@ INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
 
 NOMA_OCL_PATH_INCLUDE=thirdparty/ocl/include/
 NOMA_OCL_PATH_LIB=thirdparty/ocl/build/
-
 NOMA_MISC_PATH_INCLUDE=thirdparty/misc/include/
+NOMA_BMT_PATH_INCLUDE=thirdparty/bmt/include/
 
-INCLUDE="-Iinclude -I${OPENCL_INCLUDE_PATH} -I${BOOST_ROOT}/include -I${HAM_PATH_INCLUDE} -I${NOMA_OCL_PATH_INCLUDE} -I${NOMA_MISC_PATH_INCLUDE}"
+INCLUDE="-Iinclude -I${OPENCL_INCLUDE_PATH} -I${BOOST_ROOT}/include -I${NOMA_OCL_PATH_INCLUDE} -I${NOMA_MISC_PATH_INCLUDE} -I${NOMA_BMT_PATH_INCLUDE}"
 LIB="-lrt -L${OPENCL_LIB_PATH} -L${BOOST_ROOT}/lib -lboost_program_options -l${OPENCL_LIB} ${NOMA_OCL_PATH_LIB}/libnoma_ocl.a ${NOMA_OCL_PATH_LIB}/build.noma_typa/libnoma_typa.a"
 
 BUILD_DIR_CPU="bin.cpu"
