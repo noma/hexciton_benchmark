@@ -17,12 +17,6 @@
 #include "common.hpp"
 //#include "kernel/kernel.hpp"
 
-#ifndef DEVICE_TYPE
-	// CL_DEVICE_TYPE_CPU  
-	// CL_DEVICE_TYPE_ACCELERATOR
-	// CL_DEVICE_TYPE_GPU
-	#define DEVICE_TYPE CL_DEVICE_TYPE_ACCELERATOR
-#endif
 #ifndef INTEL_PREFETCH_LEVEL
 	#define INTEL_PREFETCH_LEVEL 1
 #endif
@@ -44,7 +38,6 @@ int main(void)
 {
 	print_compile_config(std::cerr);
 	std::cerr << "VEC_LENGTH_AUTO: " << VEC_LENGTH_AUTO << std::endl;
-	std::cerr << "DEVICE_TYPE: " << DEVICE_TYPE << std::endl;
 
 	// constants
 	const size_t dim = DIM;
@@ -87,16 +80,8 @@ int main(void)
 	// copy reference results
 	std::memcpy(sigma_reference, sigma_out, size_sigma_byte);
 
-	// setup compile options for different platforms
-#if (DEVICE_TYPE == CL_DEVICE_TYPE_CPU)
-//	const std::string compile_options_impl = " -cl-mad-enable -auto-prefetch-level=" STR(INTEL_PREFETCH_LEVEL) " "; 
-	const std::string compile_options_impl = " -cl-mad-enable " STR(OCL_BUILD_OPTIONS) " ";
-#elif (DEVICE_TYPE == CL_DEVICE_TYPE_ACCELERATOR)
-	const std::string compile_options_impl = " -cl-mad-enable -auto-prefetch-level=" STR(INTEL_PREFETCH_LEVEL) " "; // -cl-finite-math-only -cl-no-signed-zeros "; 
-#elif (DEVICE_TYPE == CL_DEVICE_TYPE_GPU)
-	const std::string compile_options_impl = ""; // -cl-nv-verbose -cl-nv-opt-level=3 -cl-mad-enable -cl-strict-aliasing -cl-nv-arch sm_35 -cl-nv-maxrregcount=64 "; 
-#endif 
-	const std::string compile_options_common = "-Iinclude -DNUM=" STR(NUM) " -DDIM=" STR(DIM) + compile_options_impl;
+	// setup compile options
+	const std::string compile_options_common = "-Iinclude -DNUM=" STR(NUM) " -DDIM=" STR(DIM);
 	const std::string compile_options_auto = compile_options_common + " -DVEC_LENGTH=" STR(VEC_LENGTH_AUTO) " -DPACKAGES_PER_WG=" STR(PACKAGES_PER_WG);
 	const std::string compile_options_manual = compile_options_common + " -DVEC_LENGTH=" STR(VEC_LENGTH) " -DPACKAGES_PER_WG=" STR(PACKAGES_PER_WG);
 	const std::string compile_options_gpu = compile_options_common + " -DVEC_LENGTH=2 -DCHUNK_SIZE=" STR(CHUNK_SIZE) " -DNUM_SUB_GROUPS=" STR(NUM_SUB_GROUPS);
