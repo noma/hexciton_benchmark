@@ -31,9 +31,14 @@ build()
 	mkdir ${DIR_NAME}
 	cd ${DIR_NAME}
 
-	cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
+	CXX=`which CC` CC=`which cc` cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
 
-	make -j
+	if [ "$DEBUG" = "true" ]
+	then
+		make VERBOSE=1
+	else
+		make -j
+	fi
 }
 
 usage ()
@@ -43,6 +48,7 @@ usage ()
 	echo -e "\t-k\t Build KNL variant.";
 	echo -e "\t-a\t Build KNC accelerator variant.";
 	echo -e "\t-g\t Build GPU variant.";
+	echo -e "\t-d\t Enable debug mode.";
 	echo -e "\t-i ${NUM_ITERATIONS}\t Number of iterations (including warmups).";
 	echo -e "\t-w ${NUM_WARMUP}\t Number of warmup iterations.";
 	echo -e "\t-p ${INTEL_PREFETCH_LEVEL}\t Value used for the Intel-specific OpenCL compiler option '-auto-prefetch-level='.";
@@ -51,8 +57,12 @@ usage ()
 BUILT_SOMETHING=false
 
 # evaluate command line
-while getopts ":i:w:p:ckagh" opt; do
+while getopts ":i:w:p:ckaghd" opt; do
 	case $opt in
+	d) #debug
+		echo "Running in debug mode."
+		DEBUG=true
+		;;
 	i) # iterations
 		echo "Setting NUM_ITERATIONS to $OPTARG" >&2
 		NUM_ITERATIONS=$OPTARG
