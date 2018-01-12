@@ -1,4 +1,5 @@
 # Copyright (c) 2013-2014 Matthias Noack (ma.noack.pr@gmail.com)
+# Copytight (c) 2017 Tobias Baumann (t.baumann@agdsn.de)
 #
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -40,9 +41,14 @@ if (!file.exists(file_a) || !file.exists(file_b)) {
 
 TITLE <- paste("Runtime diff: \"", file_a, "\" vs. \"", file_b, "\"", sep="")
 
-# read data
-data_a <- read.table(file_a, header=TRUE, sep="\t")
-data_b <- read.table(file_b, header=TRUE, sep="\t")
+# read data while filtering out lines starting with "build_time"
+raw_data <- readLines(paste(file_a))
+raw_data <- raw_data[grep("build_time", raw_data, invert=TRUE)]
+data_a <- read.table(textConnection(paste(raw_data, collapse="\n")), header=TRUE, sep="\t")
+
+raw_data <- readLines(paste(file_b))
+raw_data <- raw_data[grep("build_time", raw_data, invert=TRUE)]
+data_b <- read.table(textConnection(paste(raw_data, collapse="\n")), header=TRUE, sep="\t")
 
 # check if column exists
 if (!(column %in% colnames(data_a)) || !(column %in% colnames(data_b))) {
@@ -65,6 +71,7 @@ if (num_data_a != num_data_b ) {
 
 absolute_diff <- data_plot_b[dim(data_plot_b)[1]:1,2] - data_plot_a[dim(data_plot_a)[1]:1,2]
 relative_diff <- 1 - data_plot_b[dim(data_plot_b)[1]:1,2] / data_plot_a[dim(data_plot_a)[1]:1,2]
+speedup <- round(data_plot_a[dim(data_plot_a)[1]:1,2] / data_plot_b[dim(data_plot_b)[1]:1,2], ROUND_DIGITS)
 bar_sizes <- round(absolute_diff * DATA_SCALE, ROUND_DIGITS)
 
 
@@ -78,8 +85,8 @@ par(pin=c(3.1, 1.5))
 par(pin=c(4, HEIGHT_DATA * max(num_data_a, num_data_b)))
 
 # create a horizontal bar plot
-bplt <- barplot(bar_sizes, col=COL_BAR, horiz=TRUE, names.arg=data_plot_a[dim(data_plot_a)[1]:1,1], xlim=c(x_min, x_max), las=1)
-title(TITLE, line=-0.25)
+bplt <- barplot(bar_sizes, col=COL_BAR, horiz=TRUE, names.arg=data_plot_a[dim(data_plot_a)[1]:1,1], xlim=c(x_min, x_max), las=1, main=TITLE)
+title("kernel_name    relative_diff             plot          absolute_diff      speedup     ", line=-0.25)
 
 # add value labels
 # ‘adj’ allows _adj_ustment of the text with respect to ‘(x, y)’.
@@ -89,6 +96,7 @@ title(TITLE, line=-0.25)
 #text(x=x_max, y=bplt, labels=paste(sprintf("%.2f", bar_sizes), "ms", "=", sprintf("%.1f", relative_diff * 100), "%"), xpd=TRUE, adj=c(1,0.5))
 text(x=x_max, y=bplt, labels=paste(sprintf("%.2f", bar_sizes), "ms"), xpd=TRUE, adj=c(1,0.5))
 text(x=x_min, y=bplt, labels=paste(sprintf("%.1f", relative_diff * 100), "%"), xpd=TRUE, adj=c(0,0.5))
+text(x=x_max, y=bplt, labels=paste(sprintf("%.2f", speedup)), xpd=TRUE, adj=c(-1,0.5))
 
 # write to file
 useless_output <- dev.off()
