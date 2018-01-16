@@ -1,14 +1,17 @@
 The following thirdparty solutions are used.
 Check out the links below for further information.
 
-The downloads.tar.gz contain versions of all the thirdparty codes.
-If you don't wish to download, simply run:
-	# TODO: update downloads.tar.gz with noma-ocl and dependencies
-	tar -xzf downloads.tar.gz
-	./build.sh
-
 To automatically download and build everything simply run "download.sh"
 followed by "build.sh". See the scripts for details.
+
+If you only want to download and build the thirdparty codes needed for either
+the OpenCL or OpenMP version of the benchmark, run the scripts with the
+according suffix.
+
+The archive "downloads_omp.tar.gz" contains versions of the thirdparty codes
+needed for the OpenMP version. If you don't wish to download, simply run:
+	tar -xzf downloads_omp.tar.gz
+	./build_omp.sh
 
 noma-ocl:
 	https://github.com/noma/ocl
