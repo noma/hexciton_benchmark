@@ -31,7 +31,7 @@ build()
 	mkdir ${DIR_NAME}
 	cd ${DIR_NAME}
 
-	CXX=`which CC` CC=`which cc` cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
+	cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
 
 	if [ "$DEBUG" = "true" ]
 	then
@@ -48,7 +48,7 @@ usage ()
 	echo -e "\t-k\t Build KNL variant.";
 	echo -e "\t-a\t Build KNC accelerator variant.";
 	echo -e "\t-g\t Build GPU variant.";
-	echo -e "\t-d\t Enable debug mode.";
+	echo -e "\t-d\t Enable verbose make for debugging the build process.";
 	echo -e "\t-i ${NUM_ITERATIONS}\t Number of iterations (including warmups).";
 	echo -e "\t-w ${NUM_WARMUP}\t Number of warmup iterations.";
 	echo -e "\t-p ${INTEL_PREFETCH_LEVEL}\t Value used for the Intel-specific OpenCL compiler option '-auto-prefetch-level='.";
