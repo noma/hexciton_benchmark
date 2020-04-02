@@ -112,7 +112,7 @@ int main(void)
 		
 		std::stringstream time_ss;
 		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
-		std::cout << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
+		std::cerr << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
 		
 		// get kernel from programm using C++ OCL API
 		cl::Kernel kernel(prog, kernel_name.c_str(), &err);
