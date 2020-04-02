@@ -223,23 +223,10 @@ int main(void)
 	nd_range_naive.local  = cl::NullRange;
 	nd_range_naive.offset = cl::NullRange;
 
-	// build one-dimensional nd_range, divide num by VEC_LENGTH
-	noma::ocl::nd_range nd_range_manual_vec;
-	nd_range_manual_vec.global = cl::NDRange(num / (VEC_LENGTH));
-	nd_range_manual_vec.local  = cl::NullRange;
-	nd_range_manual_vec.offset = cl::NullRange;
-
-	// build two-dimensional nd_range
-	noma::ocl::nd_range nd_range_auto_vec;
-	nd_range_auto_vec.global = cl::NDRange(VEC_LENGTH_AUTO, num / (VEC_LENGTH_AUTO));
-	nd_range_auto_vec.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG);
-	nd_range_auto_vec.offset = cl::NullRange;
-
 	// BENCHMARK: empty kernel
 	benchmark("src/kernel/commutator_ocl_empty.cl", "commutator_ocl_empty",
 	          compile_options_common, VEC_LENGTH,
 	          nd_range_naive, NO_TRANSFORM, NO_SCALE_HAMILT, NO_TRANSFORM);
-
 
 	// BENCHMARK: initial kernel
 	benchmark("src/kernel/commutator_ocl_initial.cl", "commutator_ocl_initial",
@@ -261,7 +248,6 @@ int main(void)
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
-
 	// BENCHMARK: automatically vectorised kernel with naive NDRange and indexing and compile time constants
 	benchmark("src/kernel/commutator_ocl_aosoa_naive_constants.cl", "commutator_ocl_aosoa_naive_constants",
 	          compile_options_auto, VEC_LENGTH_AUTO,
@@ -272,11 +258,16 @@ int main(void)
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
-
 	// BENCHMARK: automatically vectorised kernel with naive NDRange and indexing, compile time constants, and direct store
 	benchmark("src/kernel/commutator_ocl_aosoa_naive_constants_direct.cl", "commutator_ocl_aosoa_naive_constants_direct",
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+
+		// build two-dimensional nd_range
+	noma::ocl::nd_range nd_range_auto_vec;
+	nd_range_auto_vec.global = cl::NDRange(VEC_LENGTH_AUTO, num / (VEC_LENGTH_AUTO));
+	nd_range_auto_vec.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG);
+	nd_range_auto_vec.offset = cl::NullRange;
 
 	// BENCHMARK: automatically vectorised kernel with compiler-friendly NDRange and indexing 
 	benchmark("src/kernel/commutator_ocl_aosoa.cl", "commutator_ocl_aosoa",
@@ -303,6 +294,12 @@ int main(void)
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_auto_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
+		// build one-dimensional nd_range, divide num by VEC_LENGTH
+	noma::ocl::nd_range nd_range_manual_vec;
+	nd_range_manual_vec.global = cl::NDRange(num / (VEC_LENGTH));
+	nd_range_manual_vec.local  = cl::NullRange;
+	nd_range_manual_vec.offset = cl::NullRange;
+
 	// BENCHMARK: manually vectorised kernel
 	benchmark("src/kernel/commutator_ocl_manual_aosoa.cl", "commutator_ocl_manual_aosoa",
 	          compile_options_manual, VEC_LENGTH,
@@ -318,7 +315,6 @@ int main(void)
 	          compile_options_manual, VEC_LENGTH,
 	          nd_range_manual_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
-
 	// BENCHMARK: manually vectorised kernel with direct store
 	benchmark("src/kernel/commutator_ocl_manual_aosoa_direct.cl", "commutator_ocl_manual_aosoa_direct",
 	          compile_options_manual, VEC_LENGTH,
@@ -333,7 +329,6 @@ int main(void)
 	benchmark("src/kernel/commutator_ocl_manual_aosoa_constants_direct_prefetch.cl", "commutator_ocl_manual_aosoa_constants_direct_prefetch",
 	          compile_options_manual, VEC_LENGTH,
 	          nd_range_manual_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
-
 
 	// BENCHMARK: manually vectorised kernel with compile time constants, direct store, and permuted loops with temporaries
 	benchmark("src/kernel/commutator_ocl_manual_aosoa_constants_direct_perm.cl", "commutator_ocl_manual_aosoa_constants_direct_perm",
