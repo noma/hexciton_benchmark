@@ -34,10 +34,31 @@
 #endif
 
 
-int main(void)
+int main(int argc, char* argv[])
 {
-	print_compile_config(std::cerr);
-	std::cerr << "VEC_LENGTH_AUTO: " << VEC_LENGTH_AUTO << std::endl;
+	std::ostream* data_stream;
+	std::ostream* message_stream;
+
+	// allow output file usage while retaining backward compatibility
+	if (argc >= 2)
+	{
+		static std::ofstream out_file = std::ofstream(argv[1]);
+		data_stream = &out_file;
+		message_stream = &std::cout;
+	}
+	else
+	{
+		data_stream = &std::cout;
+		message_stream = &std::cerr;
+	}
+
+	print_compile_config(*message_stream);
+	*message_stream << "VEC_LENGTH_AUTO:      " << VEC_LENGTH_AUTO << std::endl;
+	*message_stream << "INTEL_PREFETCH_LEVEL: " << INTEL_PREFETCH_LEVEL << std::endl;
+	*message_stream << "PACKAGES_PER_WG:      " << PACKAGES_PER_WG << std::endl;
+	*message_stream << "NUM_SUB_GROUPS:       " << NUM_SUB_GROUPS << std::endl;
+	*message_stream << "CHUNK_SIZE:           " << CHUNK_SIZE << std::endl;
+	*message_stream << "WARP_SIZE:            " << WARP_SIZE << std::endl;
 
 	// constants
 	const size_t dim = DIM;
@@ -65,7 +86,7 @@ int main(void)
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	std::cout << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
+	*data_stream << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
 	
 	// perform reference computation for correctness analysis
 	benchmark_kernel(
@@ -91,7 +112,7 @@ int main(void)
 	noma::ocl::config ocl_config("", false);
 	noma::ocl::helper ocl_helper(ocl_config);
 	// output the used device
-	ocl_helper.write_device_info(std::cerr);
+	ocl_helper.write_device_info(*message_stream);
 
 	// allocate OpenCL device memory // DONE: replace with create_buffer() from noma::ocl, use C++ interface
 	noma::ocl::buffer hamiltonian_ocl = ocl_helper.create_buffer(CL_MEM_READ_ONLY, size_hamiltonian_byte);
@@ -112,7 +133,7 @@ int main(void)
 		
 		std::stringstream time_ss;
 		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
-		std::cerr << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
+		*message_stream << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
 		
 		// get kernel from programm using C++ OCL API
 		cl::Kernel kernel(prog, kernel_name.c_str(), &err);
@@ -167,7 +188,7 @@ int main(void)
 		noma::ocl::error_handler(err, "enqueueReadBuffer(sigma_out_ocl)");
 		// compute deviation from reference	(small deviations are expected)
 		deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
-		std::cerr << "Deviation:\t" << deviation << std::endl;
+		*message_stream << "Deviation:\t" << deviation << std::endl;
 	}; // read_and_compare_sigma
 
 	// Lambda to: transform memory, benchmark, compare results
@@ -212,7 +233,7 @@ int main(void)
 		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
 			stats.add(noma::bmt::duration(static_cast<noma::bmt::rep>(ocl_helper.run_kernel_timed(kernel, range))));
 
-		std::cout << stats.string() << std::endl;
+		*data_stream << stats.string() << std::endl;
 
 		read_and_compare_sigma();
 	}; // benchmark
@@ -263,7 +284,7 @@ int main(void)
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
-		// build two-dimensional nd_range
+	// build two-dimensional nd_range
 	noma::ocl::nd_range nd_range_auto_vec;
 	nd_range_auto_vec.global = cl::NDRange(VEC_LENGTH_AUTO, num / (VEC_LENGTH_AUTO));
 	nd_range_auto_vec.local  = cl::NDRange(VEC_LENGTH_AUTO, PACKAGES_PER_WG);
@@ -294,7 +315,7 @@ int main(void)
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_auto_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
-		// build one-dimensional nd_range, divide num by VEC_LENGTH
+	// build one-dimensional nd_range, divide num by VEC_LENGTH
 	noma::ocl::nd_range nd_range_manual_vec;
 	nd_range_manual_vec.global = cl::NDRange(num / (VEC_LENGTH));
 	nd_range_manual_vec.local  = cl::NullRange;
