@@ -71,8 +71,6 @@ int main(int argc, char* argv[])
 	const real_t dt = 1.0e-3;
 	const real_t hdt = dt / hbar;
 
-	real_t deviation = 0.0;
-
 	// allocate memory
 	size_t size_hamiltonian = dim * dim;
 	size_t size_hamiltonian_byte = sizeof(complex_t) * size_hamiltonian;
@@ -90,7 +88,7 @@ int main(int argc, char* argv[])
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	data_stream << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
+	data_stream << "name" << '\t' << noma::bmt::statistics::header_string(false) << '\t' << "build_time" << '\t' << "result_deviation" << std::endl;
 
 	if (!cli.no_check()) {
 		// perform reference computation for correctness analysis
@@ -101,7 +99,10 @@ int main(int argc, char* argv[])
 			},
 			"commutator_reference",
 			NUM_ITERATIONS,
-			NUM_WARMUP);
+			NUM_WARMUP,
+			data_stream);
+
+		data_stream << '\t' << "NA" << '\t' << std::scientific << 0.0 << std::endl; // no build time, and zero deviation for reference
 
 		// copy reference results
 		std::memcpy(sigma_reference, sigma_out, size_sigma_byte);
@@ -126,21 +127,16 @@ int main(int argc, char* argv[])
 	noma::ocl::buffer sigma_out_ocl = ocl_helper.create_buffer(CL_MEM_READ_WRITE, size_sigma_byte);
 
 	// function to build and set-up a kernel
-	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options)
+	auto prepare_kernel = [&](const std::string& file_name, const std::string& kernel_name, const std::string& compile_options, noma::bmt::duration& build_time)
 	{
-		// build kernel
-		noma::bmt::duration build_time;
+		// build kernel and measure build time
 		cl::Program prog;
 		{
 			noma::bmt::timer t;
 			prog = ocl_helper.create_program_from_file(file_name, "", compile_options);
 			build_time = t.elapsed();
 		}
-		
-		std::stringstream time_ss;
-		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
-		message_stream << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
-		
+
 		// get kernel from programm using C++ OCL API
 		cl::Kernel kernel(prog, kernel_name.c_str(), &err);
 		noma::ocl::error_handler(err, "Error creating kernel: '" + kernel_name + "'.");
@@ -193,11 +189,13 @@ int main(int argc, char* argv[])
 		err = ocl_helper.queue().enqueueReadBuffer(sigma_out_ocl, CL_TRUE, 0, size_sigma_byte, sigma_out);
 		noma::ocl::error_handler(err, "enqueueReadBuffer(sigma_out_ocl)");
 
+		real_t deviation = 0.0;
 		if(!cli.no_check()) {
 			// compute deviation from reference	(small deviations are expected)
 			deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
-			message_stream << "Deviation:\t" << deviation << std::endl;
 		}
+
+		return deviation;
 	}; // read_and_compare_sigma
 
 	// Lambda to: transform memory, benchmark, compare results
@@ -237,7 +235,8 @@ int main(int argc, char* argv[])
 		}
 		write_sigma();
 
-		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options);
+		noma::bmt::duration build_time;
+		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options, build_time);
 
 		// NUM_ITERATIONS includes NUM_WARMUP, while statistics' ctor expects the number of measurements and warmups separately
 		noma::bmt::statistics stats(kernel_name, NUM_ITERATIONS-NUM_WARMUP, NUM_WARMUP);
@@ -246,9 +245,21 @@ int main(int argc, char* argv[])
 		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
 			stats.add(noma::bmt::duration(static_cast<noma::bmt::rep>(ocl_helper.run_kernel_timed(kernel, range))));
 
-		data_stream << stats.string() << std::endl;
+		real_t deviation = read_and_compare_sigma();
 
-		read_and_compare_sigma();
+		// write data table entry
+		data_stream << stats.string() // runtime
+		            << '\t' << std::scientific
+		            << build_time.count()
+		            << '\t';
+
+		if (cli.no_check()) {
+			data_stream << "NA";
+		} else {
+			data_stream << deviation;
+		}
+
+		data_stream << std::endl;
 	}; // benchmark
 
 	// build one-dimensional nd_range

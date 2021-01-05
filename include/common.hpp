@@ -204,7 +204,7 @@ void transform_matrices_aos_to_aosoa_gpu(complex_t* matrices, size_t dim, size_t
 real_t compare_matrices(complex_t* a, complex_t* b, size_t dim, size_t num);
 
 // benchmarks a kernel function and prints statistics to stdout
-void benchmark_kernel(std::function<void()> kernel, std::string name, size_t overall_runs, size_t warmup_runs);
+void benchmark_kernel(std::function<void()> kernel, std::string name, size_t overall_runs, size_t warmup_runs, std::ostream& data_stream);
 
 #endif // common_hpp
 
