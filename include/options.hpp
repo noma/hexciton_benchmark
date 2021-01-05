@@ -16,7 +16,7 @@ public:
 	{
 		// command line configuration
 		app_.set_help_flag("-h,--help", "Print command line options.");
-		app_.add_option("-n,--no_check", no_check_, "Disables correctness check, speeds up benchmark.");
+		app_.add_flag("-n,--no_check", no_check_, "Disables correctness check, speeds up benchmark.");
 		app_.add_option("-d,--data-file", data_filename_, "Optional output file for benchmark data");
 		app_.add_option("-m,--message-file", message_filename_, "Optional output file for program messages.");
 
