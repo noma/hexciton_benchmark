@@ -8,6 +8,7 @@
 #include <cstring> // memcpy
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <sstream>
 
@@ -15,6 +16,7 @@
 #include "noma/bmt/bmt.hpp" // noma::bmt
 
 #include "common.hpp"
+#include "options.hpp"
 //#include "kernel/kernel.hpp"
 
 #ifndef INTEL_PREFETCH_LEVEL
@@ -36,29 +38,31 @@
 
 int main(int argc, char* argv[])
 {
-	std::ostream* data_stream;
-	std::ostream* message_stream;
+	// command line parsing
+	options cli(&argc, &argv);
 
-	// allow output file usage while retaining backward compatibility
-	if (argc >= 2)
-	{
-		static std::ofstream out_file = std::ofstream(argv[1]);
-		data_stream = &out_file;
-		message_stream = &std::cout;
-	}
-	else
-	{
-		data_stream = &std::cout;
-		message_stream = &std::cerr;
+	std::unique_ptr<std::ofstream> data_file;
+	std::unique_ptr<std::ofstream> message_file;
+
+	if (!cli.data_filename().empty()) {
+		data_file.reset(new std::ofstream(cli.data_filename()));
 	}
 
-	print_compile_config(*message_stream);
-	*message_stream << "VEC_LENGTH_AUTO:      " << VEC_LENGTH_AUTO << std::endl;
-	*message_stream << "INTEL_PREFETCH_LEVEL: " << INTEL_PREFETCH_LEVEL << std::endl;
-	*message_stream << "PACKAGES_PER_WG:      " << PACKAGES_PER_WG << std::endl;
-	*message_stream << "NUM_SUB_GROUPS:       " << NUM_SUB_GROUPS << std::endl;
-	*message_stream << "CHUNK_SIZE:           " << CHUNK_SIZE << std::endl;
-	*message_stream << "WARP_SIZE:            " << WARP_SIZE << std::endl;
+	if (!cli.message_filename().empty()) {
+		message_file.reset(new std::ofstream(cli.message_filename()));
+	}
+
+	// use output files if specified, or standard streams otherwise
+	std::ostream& data_stream = data_file ? *data_file : std::cout;
+	std::ostream& message_stream = message_file ? *message_file : std::cerr;
+
+	print_compile_config(message_stream);
+	message_stream << "VEC_LENGTH_AUTO:      " << VEC_LENGTH_AUTO << std::endl;
+	message_stream << "INTEL_PREFETCH_LEVEL: " << INTEL_PREFETCH_LEVEL << std::endl;
+	message_stream << "PACKAGES_PER_WG:      " << PACKAGES_PER_WG << std::endl;
+	message_stream << "NUM_SUB_GROUPS:       " << NUM_SUB_GROUPS << std::endl;
+	message_stream << "CHUNK_SIZE:           " << CHUNK_SIZE << std::endl;
+	message_stream << "WARP_SIZE:            " << WARP_SIZE << std::endl;
 
 	// constants
 	const size_t dim = DIM;
@@ -86,7 +90,7 @@ int main(int argc, char* argv[])
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	*data_stream << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
+	data_stream << "name\t" << noma::bmt::statistics::header_string(false) << std::endl;
 	
 	// perform reference computation for correctness analysis
 	benchmark_kernel(
@@ -112,7 +116,7 @@ int main(int argc, char* argv[])
 	noma::ocl::config ocl_config("", false);
 	noma::ocl::helper ocl_helper(ocl_config);
 	// output the used device
-	ocl_helper.write_device_info(*message_stream);
+	ocl_helper.write_device_info(message_stream);
 
 	// allocate OpenCL device memory // DONE: replace with create_buffer() from noma::ocl, use C++ interface
 	noma::ocl::buffer hamiltonian_ocl = ocl_helper.create_buffer(CL_MEM_READ_ONLY, size_hamiltonian_byte);
@@ -133,7 +137,7 @@ int main(int argc, char* argv[])
 		
 		std::stringstream time_ss;
 		time_ss << std::scientific << std::chrono::duration_cast<noma::bmt::seconds>(build_time).count();
-		*message_stream << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
+		message_stream << "build_time\t" << kernel_name << "\t" << time_ss.str() << std::endl;
 		
 		// get kernel from programm using C++ OCL API
 		cl::Kernel kernel(prog, kernel_name.c_str(), &err);
@@ -188,7 +192,7 @@ int main(int argc, char* argv[])
 		noma::ocl::error_handler(err, "enqueueReadBuffer(sigma_out_ocl)");
 		// compute deviation from reference	(small deviations are expected)
 		deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
-		*message_stream << "Deviation:\t" << deviation << std::endl;
+		message_stream << "Deviation:\t" << deviation << std::endl;
 	}; // read_and_compare_sigma
 
 	// Lambda to: transform memory, benchmark, compare results
@@ -233,7 +237,7 @@ int main(int argc, char* argv[])
 		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
 			stats.add(noma::bmt::duration(static_cast<noma::bmt::rep>(ocl_helper.run_kernel_timed(kernel, range))));
 
-		*data_stream << stats.string() << std::endl;
+		data_stream << stats.string() << std::endl;
 
 		read_and_compare_sigma();
 	}; // benchmark
