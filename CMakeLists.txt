@@ -50,6 +50,10 @@ add_subdirectory(thirdparty/typa/ ${CMAKE_CURRENT_BINARY_DIR}/build.noma_typa)
 # OpenCL helper library
 add_subdirectory(thirdparty/ocl/ ${CMAKE_CURRENT_BINARY_DIR}/build.noma_ocl)
 
+# CLI11 (header only)
+add_library(cli11_library INTERFACE)
+target_include_directories (cli11_library INTERFACE "thirdparty/CLI11/include")
+
 # see CMakeLists.txt in src
 add_subdirectory(src)
 
