@@ -12,6 +12,8 @@
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
+CMAKE_OPTIONS="-DHB_ENABLE_OCL=ON -DHB_ENABLE_OMP=OFF -DHB_ENABLE_OMP_KART=OFF"
+
 
 build()
 {
