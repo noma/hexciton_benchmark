@@ -12,19 +12,35 @@
 
 #include "common.hpp"
 #include "kernel/kernel.hpp"
+#include "options.hpp"
 
-
-int main(void)
+int main(int argc, char* argv[])
 {
-	print_compile_config(std::cerr);
+	// command line parsing
+	options cli(&argc, &argv);
+
+	std::unique_ptr<std::ofstream> data_file;
+	std::unique_ptr<std::ofstream> message_file;
+
+	if (!cli.data_filename().empty()) {
+		data_file.reset(new std::ofstream(cli.data_filename()));
+	}
+
+	if (!cli.message_filename().empty()) {
+		message_file.reset(new std::ofstream(cli.message_filename()));
+	}
+
+	// use output files if specified, or standard streams otherwise
+	std::ostream& data_stream = data_file ? *data_file : std::cout;
+	std::ostream& message_stream = message_file ? *message_file : std::cerr;
+
+	print_compile_config(message_stream);
 
 	// constants
 	const size_t dim = DIM;
 	const size_t num = NUM;
 	const real_t hbar = 1.0 / std::acos(-1.0); // == 1 / Pi
 	const real_t dt = 1.0e-3; 
-
-	real_t deviation = 0.0;
 
 	// allocate memory
 	size_t size_hamiltonian = dim * dim;
@@ -34,28 +50,33 @@ int main(void)
 	complex_t* hamiltonian = allocate_aligned<complex_t>(size_hamiltonian);
 	complex_t* sigma_in = allocate_aligned<complex_t>(size_sigma);
 	complex_t* sigma_out = allocate_aligned<complex_t>(size_sigma);
-	complex_t* sigma_reference = allocate_aligned<complex_t>(size_sigma);
-	complex_t* sigma_reference_transformed = allocate_aligned<complex_t>(size_sigma);
+	complex_t* sigma_reference = cli.no_check() ? nullptr : allocate_aligned<complex_t>(size_sigma);
+	complex_t* sigma_reference_transformed = cli.no_check() ? nullptr : allocate_aligned<complex_t>(size_sigma);
 
 	// initialise memory
 	initialise_hamiltonian(hamiltonian, dim);
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	std::cout << noma::bmt::statistics::header_string(true) << std::endl;
-	
-	// perform reference computation for correctness analysis
-	benchmark_kernel(
-		[&]() // lambda expression
-		{
-			commutator_reference(sigma_in, sigma_out, hamiltonian, dim, num, hbar, dt);
-		},
-		"commutator_reference",
-		NUM_ITERATIONS,
-		NUM_WARMUP);
+	data_stream << noma::bmt::statistics::header_string(true) << '\t' << "result_deviation" << std::endl;
 
-	// copy reference results
-	std::memcpy(sigma_reference, sigma_out, size_sigma_byte);
+	if (!cli.no_check()) {
+		// perform reference computation for correctness analysis
+		benchmark_kernel(
+			[&]() // lambda expression
+			{
+				commutator_reference(sigma_in, sigma_out, hamiltonian, dim, num, hbar, dt);
+			},
+			"commutator_reference",
+			NUM_ITERATIONS,
+			NUM_WARMUP,
+			data_stream);
+
+			data_stream << '\t' << std::scientific << 0.0 << std::endl; // zero deviation for reference
+
+		// copy reference results
+		std::memcpy(sigma_reference, sigma_out, size_sigma_byte);
+	}
 
 	// Lambda to: transform memory, benchmark, compare results
 	auto benchmark = [&](std::function<void()> kernel,
@@ -71,21 +92,33 @@ int main(void)
 			transformation_hamiltonian(hamiltonian, dim);	
 	
 		initialise_sigma(sigma_in, sigma_out, dim, num);
-		std::memcpy(sigma_reference_transformed, sigma_reference, size_sigma_byte);
+		if(!cli.no_check()) {
+			std::memcpy(sigma_reference_transformed, sigma_reference, size_sigma_byte);
+		}
+
 		// transform memory layout if a transformation is specified
 		if (transformation_sigma)
 		{
-			// transform reference for comparison
-			transformation_sigma(sigma_reference_transformed, dim, num, VEC_LENGTH);
-			// tranform sigma
+			if(!cli.no_check()) {
+				// transform reference for comparison
+				transformation_sigma(sigma_reference_transformed, dim, num, VEC_LENGTH);
+			}
+			// transform sigma
 			transformation_sigma(sigma_in, dim, num, VEC_LENGTH);
 		}
 		
-		benchmark_kernel(kernel, name, NUM_ITERATIONS, NUM_WARMUP);
-		
-		// compute deviation from reference	(small deviations are expected)
-		deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
-		std::cerr << "Deviation:\t" << deviation << std::endl;
+		benchmark_kernel(kernel, name, NUM_ITERATIONS, NUM_WARMUP, data_stream);
+
+		// append deviation column
+		data_stream << '\t';
+		if (cli.no_check()) {
+			data_stream << "NA";
+		} else {
+			// compute deviation from reference	(small deviations are expected)
+			real_t deviation = compare_matrices(sigma_out, sigma_reference_transformed, dim, num);
+			data_stream << std::scientific << deviation;
+		}
+		data_stream << std::endl;
 	};
 	
 	
@@ -100,7 +133,7 @@ int main(void)
 		{
 			commutator_omp_empty( SCALAR_ARGUMENTS );
 		},
-		"commutator_omp_aosoa",
+		"commutator_omp_empty",
 		&transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 	
 	// BENCHMARK
@@ -250,7 +283,11 @@ int main(void)
 	delete hamiltonian;
 	delete sigma_in;
 	delete sigma_out;
-	delete sigma_reference;
+
+	if (!cli.no_check()) {
+		delete sigma_reference;
+		delete sigma_reference_transformed;
+	}
 
 	return 0;
 }
