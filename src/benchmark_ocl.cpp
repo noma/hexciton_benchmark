@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	initialise_sigma(sigma_in, sigma_out, dim, num);
 
 	// print output header
-	data_stream << "name" << '\t' << noma::bmt::statistics::header_string(false) << '\t' << "build_time" << '\t' << "result_deviation" << std::endl;
+	data_stream << noma::bmt::statistics::header_string(true) << '\t' << "result_deviation" << '\t' << "build_time" << std::endl;
 
 	if (!cli.no_check()) {
 		// perform reference computation for correctness analysis
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 			NUM_WARMUP,
 			data_stream);
 
-		data_stream << '\t' << "NA" << '\t' << std::scientific << 0.0 << std::endl; // no build time, and zero deviation for reference
+		data_stream << std::scientific << '\t' << 0.0 << '\t' <<  "NA" << std::endl; // zero deviation, and no build time for reference
 
 		// copy reference results
 		std::memcpy(sigma_reference, sigma_out, size_sigma_byte);
@@ -230,7 +230,7 @@ int main(int argc, char* argv[])
 				// transform reference for comparison
 				transformation_sigma(sigma_reference_transformed, dim, num, vec_length);
 			}
-			// tranform sigma
+			// transform sigma
 			transformation_sigma(sigma_in, dim, num, vec_length);
 		}
 		write_sigma();
@@ -249,17 +249,17 @@ int main(int argc, char* argv[])
 
 		// write data table entry
 		data_stream << stats.string() // runtime
-		            << '\t' << std::scientific
-		            << build_time.count()
-		            << '\t';
-
+		            << '\t' << std::scientific;
+		// result deviation
 		if (cli.no_check()) {
 			data_stream << "NA";
 		} else {
 			data_stream << deviation;
 		}
-
-		data_stream << std::endl;
+		// build time
+		data_stream << '\t'
+		            << build_time.count()
+		            << std::endl;
 	}; // benchmark
 
 	// build one-dimensional nd_range
