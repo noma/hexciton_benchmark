@@ -10,9 +10,9 @@
 
 // NOTE: reference kernel is declared in common.hpp
 
-#define SCALAR_PARAMETERS real_t const* restrict sigma_in,    \
-                           real_t* restrict sigma_out,         \
-                           real_t const* restrict hamiltonian, \
+#define SCALAR_PARAMETERS real_t const* __restrict sigma_in,    \
+                           real_t* __restrict sigma_out,         \
+                           real_t const* __restrict hamiltonian, \
                            const int num, const int dim,       \
                            const real_t hbar, const real_t dt
 // auto: 
@@ -34,9 +34,9 @@ void commutator_omp_aosoa_constants_direct_perm2to3( SCALAR_PARAMETERS );
 
 void commutator_omp_aosoa_constants_direct_perm2to5( SCALAR_PARAMETERS );
 
-# define VECTOR_PARAMETERS real_vec_t const* restrict sigma_in, \
-                           real_vec_t* restrict sigma_out,      \
-                           real_t const* restrict hamiltonian,  \
+# define VECTOR_PARAMETERS real_vec_t const* __restrict sigma_in, \
+                           real_vec_t* __restrict sigma_out,      \
+                           real_t const* __restrict hamiltonian,  \
                            const int num, const int dim,        \
                            const real_t hbar, const real_t dt
 // manual:

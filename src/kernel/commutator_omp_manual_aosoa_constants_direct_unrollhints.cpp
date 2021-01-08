@@ -11,9 +11,9 @@
 #ifdef KART
 extern "C" {
 #endif
-void commutator_omp_manual_aosoa_constants_direct_unrollhints(real_vec_t const* restrict sigma_in,
-                                                              real_vec_t* restrict sigma_out,
-                                                              real_t const* restrict hamiltonian,
+void commutator_omp_manual_aosoa_constants_direct_unrollhints(real_vec_t const* __restrict sigma_in,
+                                                              real_vec_t* __restrict sigma_out,
+                                                              real_t const* __restrict hamiltonian,
                                                               const int num, const int dim,
                                                               const real_t hbar, const real_t dt)
 {
