@@ -1,0 +1,9 @@
+thirdparty/ocl
+thirdparty/bmt
+thirdparty/typa
+thirdparty/misc
+thirdparty/kart
+thirdparty/vcl
+build*/
+bin*/
+*.idea
