@@ -1,0 +1,11 @@
+[compiler]
+exe=/home/csr/bzcnoack/Software/llvm-11.0.0/bin/clang++
+options-always=-c -std=c++11 -O3 -march=native -mprefer-vector-width=512 -fopenmp -shared -fPIC 
+options-default=-Iinclude -Ithirdparty/ham/include -Ithirdparty/kart/include -Ithirdparty/vcl -DKART
+source-file-extension=cpp
+
+[linker]
+exe=/home/csr/bzcnoack/Software/llvm-11.0.0/bin/clang++
+options-always=-shared -fPIC
+options-default=-fopenmp
+
