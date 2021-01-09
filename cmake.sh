@@ -5,6 +5,9 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+# Example: 
+# CXX=`which clang++` CC=`which clang` ./cake.sh -c
+
 # NOTE:
 # Optional environment variables: BUILD_DIR_SUFFIX, BUILD_OPTIONS, CMAKE_OPTIONS
 
@@ -12,7 +15,7 @@
 NUM_ITERATIONS=26 # including warmup below
 NUM_WARMUP=1
 INTEL_PREFETCH_LEVEL=1 # sets -auto-prefetch-level= for OpenCL compilation
-CMAKE_OPTIONS="-DHB_ENABLE_OCL=ON -DHB_ENABLE_OMP=OFF -DHB_ENABLE_OMP_KART=OFF"
+CMAKE_OPTIONS="-DHB_ENABLE_OCL=OFF -DHB_ENABLE_OMP=ON -DHB_ENABLE_OMP_KART=ON"
 
 
 build()
@@ -34,6 +37,8 @@ build()
 	cd ${DIR_NAME}
 
 	cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
+	#CXX=`which g++` CC=`which gcc` cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
+	#CXX=`which clang++` CC=`which clang` cmake -DCMAKE_BUILD_TYPE=Release ${BUILD_OPTIONS} ${CMAKE_OPTIONS} ..
 
 	if [ "$DEBUG" = "true" ]
 	then
@@ -112,7 +117,7 @@ done
 
 if [ "$BUILT_CPU" = "true" ]
 then
-	build "cpu" "-DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -DINTEL_PREFETCH_LEVEL=${INTEL_PREFETCH_LEVEL} -DVEC_LENGTH=4 -DVEC_LENGTH_AUTO=16 -DPACKAGES_PER_WG=4 -DBUILD_OPTIONS=${BUILD_OPTIONS}"
+	build "cpu" "-DNUM_ITERATIONS=${NUM_ITERATIONS} -DNUM_WARMUP=${NUM_WARMUP} -DINTEL_PREFETCH_LEVEL=${INTEL_PREFETCH_LEVEL} -DVEC_LENGTH=8 -DVEC_LENGTH_AUTO=16 -DPACKAGES_PER_WG=4 -DBUILD_OPTIONS=${BUILD_OPTIONS}"
 	BUILT_SOMETHING=true
 fi
 
