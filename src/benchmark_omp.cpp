@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
 				commutator_reference(sigma_in, sigma_out, hamiltonian, dim, num, hbar, dt);
 			},
 			"commutator_reference",
-			NUM_ITERATIONS,
-			NUM_WARMUP,
+			cli.runs(),
+			cli.warmup_runs(),
 			data_stream);
 
 			data_stream << '\t' << std::scientific << 0.0 << std::endl; // zero deviation for reference
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 			transformation_sigma(sigma_in, dim, num, VEC_LENGTH);
 		}
 		
-		benchmark_kernel(kernel, name, NUM_ITERATIONS, NUM_WARMUP, data_stream);
+		benchmark_kernel(kernel, name, cli.runs(), cli.warmup_runs(), data_stream);
 
 		// append deviation column
 		data_stream << '\t';

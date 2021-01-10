@@ -208,10 +208,10 @@ real_t compare_matrices(complex_t* a, complex_t* b, size_t dim, size_t num)
 	return deviation;
 }
 
-void benchmark_kernel(std::function<void()> kernel, std::string name, size_t overall_runs, size_t warmup_runs, std::ostream& data_stream)
+void benchmark_kernel(std::function<void()> kernel, std::string name, size_t runs, size_t warmup_runs, std::ostream& data_stream)
 {
-	noma::bmt::statistics stats(overall_runs - warmup_runs, warmup_runs);
-	for (size_t i = 0; i < overall_runs; ++i)
+	noma::bmt::statistics stats(runs, warmup_runs);
+	for (size_t i = 0; i < warmup_runs + runs; ++i)
 	{
 		noma::bmt::timer t;
 		kernel();

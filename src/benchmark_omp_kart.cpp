@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
 				commutator_reference(sigma_in, sigma_out, hamiltonian, dim, num, hbar, dt);
 			},
 			"commutator_reference",
-			NUM_ITERATIONS,
-			NUM_WARMUP,
+			cli.runs(),
+			cli.warmup_runs(),
 			data_stream);
 
 		data_stream << std::scientific << '\t' << 0.0 << '\t' << "NA" << std::endl; // zero deviation, and no build time for reference
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 		}
 		
 		benchmark_kernel([&](){ kernel_caller(kernel); },
-		                 kernel_name, NUM_ITERATIONS, NUM_WARMUP, data_stream);
+		                 kernel_name, cli.runs(), cli.warmup_runs(), data_stream);
 
 		// append deviation column
 		data_stream << '\t';

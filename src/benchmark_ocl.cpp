@@ -98,8 +98,8 @@ int main(int argc, char* argv[])
 				commutator_reference(sigma_in, sigma_out, hamiltonian, dim, num, hbar, dt);
 			},
 			"commutator_reference",
-			NUM_ITERATIONS,
-			NUM_WARMUP,
+			cli.runs(),
+			cli.warmup_runs(),
 			data_stream);
 
 		data_stream << std::scientific << '\t' << 0.0 << '\t' <<  "NA" << std::endl; // zero deviation, and no build time for reference
@@ -239,10 +239,10 @@ int main(int argc, char* argv[])
 		cl::Kernel kernel = prepare_kernel(file_name, kernel_name, compile_options, build_time);
 
 		// NUM_ITERATIONS includes NUM_WARMUP, while statistics' ctor expects the number of measurements and warmups separately
-		noma::bmt::statistics stats(kernel_name, NUM_ITERATIONS-NUM_WARMUP, NUM_WARMUP);
+		noma::bmt::statistics stats(kernel_name, cli.runs(), cli.warmup_runs());
 
 		// benchmark loop
-		for (size_t i = 0; i < NUM_ITERATIONS; ++i)
+		for (size_t i = 0; i < cli.warmup_runs() + cli.runs(); ++i)
 			stats.add(noma::bmt::duration(static_cast<noma::bmt::rep>(ocl_helper.run_kernel_timed(kernel, range))));
 
 		real_t deviation = read_and_compare_sigma();

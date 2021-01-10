@@ -19,6 +19,8 @@ public:
 		app_.add_flag("-n,--no_check", no_check_, "Disables correctness check, speeds up benchmark.");
 		app_.add_option("-d,--data-file", data_filename_, "Optional output file for benchmark data");
 		app_.add_option("-m,--message-file", message_filename_, "Optional output file for program messages.");
+		app_.add_option("-r,--runs", runs_, "Number of benchmarked kernel runs (excluding warmup runs).");
+		app_.add_option("-w,--warmup-runs", warmup_runs_, "Number of warmup kernel runs (not benchmarked).");
 
 		// parse command line
 		try {
@@ -32,6 +34,8 @@ public:
 	const bool& no_check() const { return no_check_; }
 	const std::string& data_filename() const { return data_filename_; }
 	const std::string& message_filename() const { return message_filename_; }
+	const size_t& runs() const { return runs_; }
+	const size_t& warmup_runs() const { return warmup_runs_; }
 
 private:
 	CLI::App app_;
@@ -40,6 +44,8 @@ private:
 	bool no_check_ = false;
 	std::string data_filename_;
 	std::string message_filename_;
+	size_t runs_ = NUM_ITERATIONS - NUM_WARMUP;
+	size_t warmup_runs_ = NUM_WARMUP;
 };
 
 #endif // options_hpp
