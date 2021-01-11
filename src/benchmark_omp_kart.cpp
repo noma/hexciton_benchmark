@@ -206,6 +206,14 @@ int main(int argc, char* argv[])
 	          &transform_matrix_aos_to_soa);
 
 	// BENCHMARK
+	benchmark("src/kernel/commutator_omp_aosoa_constants_perm.cpp",
+	          "commutator_omp_aosoa_constants_perm",
+	          scalar_caller,
+	          &transform_matrices_aos_to_aosoa,
+	          SCALE_HAMILT,
+	          &transform_matrix_aos_to_soa);
+
+	// BENCHMARK
 	benchmark("src/kernel/commutator_omp_aosoa_direct.cpp",
 	          "commutator_omp_aosoa_direct",
 	          scalar_caller,

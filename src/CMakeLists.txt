@@ -27,6 +27,7 @@ set(OMP_COMPILE_FLAGS "-O3 -march=native -DVEC_VCL")
 set(OMP_KERNEL_SRC kernel/commutator_omp_empty.cpp
                    kernel/commutator_omp_aosoa.cpp
                    kernel/commutator_omp_aosoa_constants.cpp
+                   kernel/commutator_omp_aosoa_constants_perm.cpp
                    kernel/commutator_omp_aosoa_direct.cpp
                    kernel/commutator_omp_aosoa_constants_direct.cpp
                    kernel/commutator_omp_aosoa_constants_direct_perm.cpp
