@@ -52,8 +52,10 @@ if (HB_ENABLE_OCL)
 			CXX_STANDARD_REQUIRED YES
 			CXX_EXTENSIONS NO
 			)
-		
 	set_target_properties(benchmark_ocl PROPERTIES COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${OCL_COMPILE_FLAGS}")
+	if (HB_ENABLE_OCL_NAIVE_WG_LIMIT)
+		set_property(TARGET benchmark_ocl APPEND_STRING PROPERTY COMPILE_FLAGS " -DNAIVE_WG_LIMIT")
+	endif ()
 endif ()
 
 # OpenMP Benchmark

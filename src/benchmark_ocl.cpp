@@ -63,6 +63,13 @@ int main(int argc, char* argv[])
 	message_stream << "NUM_SUB_GROUPS:       " << NUM_SUB_GROUPS << std::endl;
 	message_stream << "CHUNK_SIZE:           " << CHUNK_SIZE << std::endl;
 	message_stream << "WARP_SIZE:            " << WARP_SIZE << std::endl;
+	message_stream << "NAIVE_WG_LIMIT:       "
+#ifdef NAIVE_WG_LIMIT
+	               << "defined"
+#else
+                   << "undefined"
+#endif
+                   << std::endl;
 
 	// constants
 	const size_t dim = DIM;
@@ -265,7 +272,11 @@ int main(int argc, char* argv[])
 	// build one-dimensional nd_range
 	noma::ocl::nd_range nd_range_naive;
 	nd_range_naive.global = cl::NDRange(num);
+#ifdef NAIVE_WG_LIMIT
+	nd_range_naive.local  = cl::NDRange(VEC_LENGTH_AUTO * PACKAGES_PER_WG);
+#else
 	nd_range_naive.local  = cl::NullRange;
+#endif
 	nd_range_naive.offset = cl::NullRange;
 
 	// BENCHMARK: empty kernel
