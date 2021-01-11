@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.9.0 FATAL_ERROR)
 project(hexciton_benchmark)
 
 option(HB_ENABLE_OCL "Enable OpenCL benchmark" ON)
+option(HB_ENABLE_OCL_NAIVE_WG_LIMIT "Enable work group size limit for naive kernels in OpenCL benchmark" ON)
 option(HB_ENABLE_OMP "Enable OpenMP benchmark" ON)
 option(HB_ENABLE_OMP_KART "Enable OpenMP benchmark with runtime compilation via KART" ON)
 

@@ -23,6 +23,8 @@ void commutator_omp_aosoa( SCALAR_PARAMETERS );
 
 void commutator_omp_aosoa_constants( SCALAR_PARAMETERS );
 
+void commutator_omp_aosoa_constants_perm( SCALAR_PARAMETERS );
+
 void commutator_omp_aosoa_direct( SCALAR_PARAMETERS );
 
 void commutator_omp_aosoa_constants_direct( SCALAR_PARAMETERS );

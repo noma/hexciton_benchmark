@@ -158,6 +158,15 @@ int main(int argc, char* argv[])
 	benchmark(
 		[&]() // lambda expression
 		{
+			commutator_omp_aosoa_constants_perm( SCALAR_ARGUMENTS );
+		},
+		"commutator_omp_aosoa_constants_perm",
+		&transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+
+	// BENCHMARK
+	benchmark(
+		[&]() // lambda expression
+		{
 			commutator_omp_aosoa_direct( SCALAR_ARGUMENTS );
 		},
 		"commutator_omp_aosoa_direct",
