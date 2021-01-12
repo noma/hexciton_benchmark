@@ -9,10 +9,10 @@
 extern "C" {
 #endif
 void commutator_omp_manual_aosoa_constants_perm(real_vec_t const* __restrict sigma_in,
-                                           real_vec_t* __restrict sigma_out,
-                                           real_t const* __restrict hamiltonian,
-                                           const int num, const int dim,
-                                           const real_t hbar, const real_t dt)
+                                                real_vec_t* __restrict sigma_out,
+                                                real_t const* __restrict hamiltonian,
+                                                const int num, const int dim,
+                                                const real_t hbar, const real_t dt)
 {
 	// OpenCL work-groups are mapped to threads
 	#pragma omp parallel for
@@ -34,29 +34,33 @@ void commutator_omp_manual_aosoa_constants_perm(real_vec_t const* __restrict sig
 		{
 			for (k = 0; k < DIM; ++k)
 			{
+				real_t ham_real_tmp = hamiltonian[ham_real(i, k)];
+				real_t ham_imag_tmp = hamiltonian[ham_imag(i, k)];
+				real_vec_t sigma_real_tmp = sigma_in[sigma_real(i, k)];
+				real_vec_t sigma_imag_tmp = sigma_in[sigma_imag(i, k)];
 				for (j = 0; j < DIM; ++j)
 				{
 #ifdef USE_INITZERO
-				real_vec_t tmp_real(0.0);
-				real_vec_t tmp_imag(0.0);
+					real_vec_t tmp_real(0.0);
+					real_vec_t tmp_imag(0.0);
 #else
-				real_vec_t tmp_real = sigma_out[sigma_real(i, j)];
-				real_vec_t tmp_imag = sigma_out[sigma_imag(i, j)];
+					real_vec_t tmp_real = sigma_out[sigma_real(i, j)];
+					real_vec_t tmp_imag = sigma_out[sigma_imag(i, j)];
 #endif
-					tmp_imag -= sigma_in[sigma_real(k, j)] * hamiltonian[ham_real(i, k)];
-					tmp_imag += sigma_in[sigma_real(i, k)] * hamiltonian[ham_real(k, j)];
-					tmp_imag += sigma_in[sigma_imag(k, j)] * hamiltonian[ham_imag(i, k)];
-					tmp_imag -= sigma_in[sigma_imag(i, k)] * hamiltonian[ham_imag(k, j)];
-					tmp_real += sigma_in[sigma_imag(k, j)] * hamiltonian[ham_real(i, k)];
-					tmp_real -= sigma_in[sigma_real(i, k)] * hamiltonian[ham_imag(k, j)];
-					tmp_real += sigma_in[sigma_real(k, j)] * hamiltonian[ham_imag(i, k)];
-					tmp_real -= sigma_in[sigma_imag(i, k)] * hamiltonian[ham_real(k, j)];
+					tmp_imag -= sigma_in[sigma_real(k,j)] * ham_real_tmp;
+					tmp_imag += sigma_real_tmp * hamiltonian[ham_real(k,j)];
+					tmp_imag += sigma_in[sigma_imag(k,j)] * ham_imag_tmp;
+					tmp_imag -= sigma_imag_tmp * hamiltonian[ham_imag(k,j)];
+					tmp_real += sigma_in[sigma_imag(k,j)] * ham_real_tmp;
+					tmp_real -= sigma_real_tmp * hamiltonian[ham_imag(k,j)];
+					tmp_real += sigma_in[sigma_real(k,j)] * ham_imag_tmp;
+					tmp_real -= sigma_imag_tmp * hamiltonian[ham_real(k,j)];
 #ifdef USE_INITZERO
-				sigma_out[sigma_real(i, j)] += tmp_real;
-				sigma_out[sigma_imag(i, j)] += tmp_imag;
+					sigma_out[sigma_real(i, j)] += tmp_real;
+					sigma_out[sigma_imag(i, j)] += tmp_imag;
 #else
-				sigma_out[sigma_real(i, j)] = tmp_real;
-				sigma_out[sigma_imag(i, j)] = tmp_imag;
+					sigma_out[sigma_real(i, j)] = tmp_real;
+					sigma_out[sigma_imag(i, j)] = tmp_imag;
 #endif
 				}
 			}
