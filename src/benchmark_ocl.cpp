@@ -309,6 +309,11 @@ int main(int argc, char* argv[])
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
+	// BENCHMARK: automatically vectorised kernel with naive NDRange and indexing and compile time constants, and permuted loops with temporaries
+	benchmark("src/kernel/commutator_ocl_aosoa_naive_constants_perm.cl", "commutator_ocl_aosoa_naive_constants_perm",
+	          compile_options_auto, VEC_LENGTH_AUTO,
+	          nd_range_naive, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+
 	// BENCHMARK: automatically vectorised kernel with naive NDRange and indexing and direct store
 	benchmark("src/kernel/commutator_ocl_aosoa_naive_direct.cl", "commutator_ocl_aosoa_naive_direct",
 	          compile_options_auto, VEC_LENGTH_AUTO,
@@ -340,6 +345,11 @@ int main(int argc, char* argv[])
 	          compile_options_auto, VEC_LENGTH_AUTO,
 	          nd_range_auto_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
+	// BENCHMARK: automatically vectorised kernel with compiler-friendly NDRange and indexing, and compile time constants, and permuted loops with temporaries
+	benchmark("src/kernel/commutator_ocl_aosoa_constants_perm.cl", "commutator_ocl_aosoa_constants_perm",
+	          compile_options_auto, VEC_LENGTH_AUTO,
+	          nd_range_auto_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+
 	// BENCHMARK: automatically vectorised kernel with compiler-friendly NDRange and indexing, and direct store
 	benchmark("src/kernel/commutator_ocl_aosoa_direct.cl", "commutator_ocl_aosoa_direct",
 	          compile_options_auto, VEC_LENGTH_AUTO,
@@ -368,6 +378,11 @@ int main(int argc, char* argv[])
 
 	// BENCHMARK: manually vectorised kernel with compile time constants
 	benchmark("src/kernel/commutator_ocl_manual_aosoa_constants.cl", "commutator_ocl_manual_aosoa_constants",
+	          compile_options_manual, VEC_LENGTH,
+	          nd_range_manual_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
+
+	// BENCHMARK: manually vectorised kernel with compile time constants, and permuted loops with temporaries
+	benchmark("src/kernel/commutator_ocl_manual_aosoa_constants_perm.cl", "commutator_ocl_manual_aosoa_constants_perm",
 	          compile_options_manual, VEC_LENGTH,
 	          nd_range_manual_vec, &transform_matrices_aos_to_aosoa, SCALE_HAMILT, &transform_matrix_aos_to_soa);
 
