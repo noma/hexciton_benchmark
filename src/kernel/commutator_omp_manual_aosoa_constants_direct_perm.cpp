@@ -41,14 +41,14 @@ void commutator_omp_manual_aosoa_constants_direct_perm(real_vec_t const* __restr
 				for (j = 0; j < DIM; ++j)
 				{
 					// reordered operands (there is no scalar-times-vector operator in micvec.h)
-					sigma_out[sigma_imag(i,j)] -= sigma_in[sigma_real(k,j)] * hamiltonian[ham_real(i,k)];
-					sigma_out[sigma_imag(i,j)] += sigma_in[sigma_real(i,k)] * hamiltonian[ham_real(k,j)];
-					sigma_out[sigma_imag(i,j)] += sigma_in[sigma_imag(k,j)] * hamiltonian[ham_imag(i,k)];
-					sigma_out[sigma_imag(i,j)] -= sigma_in[sigma_imag(i,k)] * hamiltonian[ham_imag(k,j)];
-					sigma_out[sigma_real(i,j)] += sigma_in[sigma_imag(k,j)] * hamiltonian[ham_real(i,k)];
-					sigma_out[sigma_real(i,j)] -= sigma_in[sigma_real(i,k)] * hamiltonian[ham_imag(k,j)];
-					sigma_out[sigma_real(i,j)] += sigma_in[sigma_real(k,j)] * hamiltonian[ham_imag(i,k)];
-					sigma_out[sigma_real(i,j)] -= sigma_in[sigma_imag(i,k)] * hamiltonian[ham_real(k,j)];
+					sigma_out[sigma_imag(i,j)] -= sigma_in[sigma_real(k,j)] * ham_real_tmp;
+					sigma_out[sigma_imag(i,j)] += sigma_real_tmp * hamiltonian[ham_real(k,j)];
+					sigma_out[sigma_imag(i,j)] += sigma_in[sigma_imag(k,j)] * ham_imag_tmp;
+					sigma_out[sigma_imag(i,j)] -= sigma_imag_tmp * hamiltonian[ham_imag(k,j)];
+					sigma_out[sigma_real(i,j)] += sigma_in[sigma_imag(k,j)] * ham_real_tmp;
+					sigma_out[sigma_real(i,j)] -= sigma_real_tmp * hamiltonian[ham_imag(k,j)];
+					sigma_out[sigma_real(i,j)] += sigma_in[sigma_real(k,j)] * ham_imag_tmp;
+					sigma_out[sigma_real(i,j)] -= sigma_imag_tmp * hamiltonian[ham_real(k,j)];
 				}
 			}
 		}
