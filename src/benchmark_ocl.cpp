@@ -368,7 +368,11 @@ int main(int argc, char* argv[])
 	// build one-dimensional nd_range, divide num by VEC_LENGTH
 	noma::ocl::nd_range nd_range_manual_vec;
 	nd_range_manual_vec.global = cl::NDRange(num / (VEC_LENGTH));
+#ifdef NAIVE_WG_LIMIT
+	nd_range_manual_vec.local  = cl::NDRange(VEC_LENGTH * PACKAGES_PER_WG);
+#else
 	nd_range_manual_vec.local  = cl::NullRange;
+#endif
 	nd_range_manual_vec.offset = cl::NullRange;
 
 	// BENCHMARK: manually vectorised kernel
