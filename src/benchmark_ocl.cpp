@@ -273,6 +273,7 @@ int main(int argc, char* argv[])
 	noma::ocl::nd_range nd_range_naive;
 	nd_range_naive.global = cl::NDRange(num);
 #ifdef NAIVE_WG_LIMIT
+	// use same WG size as auto
 	nd_range_naive.local  = cl::NDRange(VEC_LENGTH_AUTO * PACKAGES_PER_WG);
 #else
 	nd_range_naive.local  = cl::NullRange;
@@ -369,7 +370,8 @@ int main(int argc, char* argv[])
 	noma::ocl::nd_range nd_range_manual_vec;
 	nd_range_manual_vec.global = cl::NDRange(num / (VEC_LENGTH));
 #ifdef NAIVE_WG_LIMIT
-	nd_range_manual_vec.local  = cl::NDRange(VEC_LENGTH * PACKAGES_PER_WG);
+	// divide by VEC_LENGTH to have the same amount of work per WG as compared to auto/naive
+	nd_range_manual_vec.local  = cl::NDRange((VEC_LENGTH_AUTO * PACKAGES_PER_WG) / VEC_LENGTH);
 #else
 	nd_range_manual_vec.local  = cl::NullRange;
 #endif
